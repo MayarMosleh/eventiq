@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('profiles', function (Blueprint $table) {
+        Schema::create('invites', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('booking_id')->constrained('bookings')->onDelete('cascade');
+            $table->string('name_invite');
+            $table->string('email');
             $table->timestamps();
-            $table->foreignId('user_id')->constrained('users');
-            $table->string('phone');
-            $table->string('img');
-            $table->date('birthDate');
         });
     }
 
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('profiles');
+        Schema::dropIfExists('invites');
     }
 };
