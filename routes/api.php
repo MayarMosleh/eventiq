@@ -31,6 +31,6 @@ Route::post('/event-requests', [EventRequestController::class, 'store']);
 Route::middleware('CheckAdmin')->group(function()
 {
  Route::get('/event-requests', [EventRequestController::class, 'index']); 
-    Route::put('/event-requests/{id}', [EventRequestController::class, 'update']);
+  Route::put('/event-requests/{id}', [EventRequestController::class, 'update']);
 });
 });

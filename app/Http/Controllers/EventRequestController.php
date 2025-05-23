@@ -47,6 +47,7 @@ class EventRequestController extends Controller
     // قبول أو رفض طلب
     public function update(Request $request, $id)
 {
+
     $eventRequest = EventRequest::findOrFail($id);
 
     $request->validate([
