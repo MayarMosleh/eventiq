@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CheckIfAdmin;
 use App\Http\Middleware\checkUserRole;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -13,7 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->alias(['CheckUser'=>checkUserRole::class]);
+        $middleware->alias(['CheckProvider'=>checkUserRole::class,'CheckAdmin'=>CheckIfAdmin::class]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

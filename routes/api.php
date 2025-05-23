@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EventRequestController;
 use App\Http\Controllers\profileController;
 use App\Http\Controllers\UserController;
 use App\Models\User;
@@ -15,11 +16,21 @@ route::post('login',[UserController::class,'login']);
 Route::middleware('auth:sanctum')->group(function()
 {
 route::post('logout',[UserController::class,'logout']);
-route::get('getAllUsers',[UserController::class,'index'])->middleware('CheckUser');
-route::get('getUser/{id}',[UserController::class,'show'])->middleware('CheckUser');
-
 
 route::apiResource('profiles',profileController::class);
+
+Route::middleware('CheckProvider')->group(function()
+{
+route::get('getAllUsers',[UserController::class,'index']);
+route::get('getUser/{id}',[UserController::class,'show']);
+
+Route::post('/event-requests', [EventRequestController::class, 'store']); 
+
 });
 
-
+Route::middleware('CheckAdmin')->group(function()
+{
+ Route::get('/event-requests', [EventRequestController::class, 'index']); 
+    Route::put('/event-requests/{id}', [EventRequestController::class, 'update']);
+});
+});
