@@ -24,7 +24,6 @@ class StoreProfileRequest extends FormRequest
         return [
              'img'=>'required|image|max:2048|mimes:png,jpg',
             'phone'=>'integer',
-            'email'=>'email|string|max:50',
             'address'=>'string|nullable', 
             'birthDate'=>'date'
         ];
