@@ -16,15 +16,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+
         $middleware->alias([
+            'CheckProvider'=> CheckUserRole::class,
             'CheckUser'=>checkUserRole::class,
             'verified'     => EnsureEmailIsVerified::class,
             'limit'        => VerifyCodeRateLimit::class,
-            'CheckProvider'=> CheckUserRole::class,
             'CheckAdmin'   => CheckIfAdmin::class
-        ]);
-
-    })
+        ]);})
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
