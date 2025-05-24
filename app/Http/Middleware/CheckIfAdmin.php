@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class checkUserRole
+class CheckIfAdmin
 {
     /**
      * Handle an incoming request.
@@ -16,9 +16,10 @@ class checkUserRole
      */
     public function handle(Request $request, Closure $next): Response
     {
-     if(Auth::user()->role==='provider')
+       if(Auth::user()->role==='admin')
         return $next($request);
     
     return response()->json(['message'=>'cannot enter'], 403);
     }
-}
+    }
+

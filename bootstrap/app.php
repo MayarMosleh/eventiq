@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CheckIfAdmin;
 use App\Http\Middleware\checkUserRole;
 use App\Http\Middleware\EnsureEmailIsVerified;
 use App\Http\Middleware\VerifyCodeRateLimit;
@@ -16,10 +17,13 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'CheckUser' => checkUserRole::class,
-            'verified'  => EnsureEmailIsVerified::class,
-            'limit'     => VerifyCodeRateLimit::class,
+            'CheckUser'=>checkUserRole::class,
+            'verified'     => EnsureEmailIsVerified::class,
+            'limit'        => VerifyCodeRateLimit::class,
+            'CheckProvider'=> CheckUserRole::class,
+            'CheckAdmin'   => CheckIfAdmin::class
         ]);
+
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
