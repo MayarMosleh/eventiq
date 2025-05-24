@@ -40,4 +40,10 @@ class User extends Authenticatable
     {
         return $this->hasOne(Company::class);
     }
+
+    public function verificationCodes(): HasMany
+    {
+        return $this->hasMany(VerificationCode::class);
+    }
+
 }

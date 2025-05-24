@@ -15,7 +15,7 @@ class UserController extends Controller
     {
         $user=User::create($request->validated());
         $token=$user->createToken('auth_token')->plainTextToken;
-       Mail::to($user->email)->send(new WelcomeMail($user));
+        Mail::to($user->email)->send(new WelcomeMail($user));
         return response()->json(['message'=>'this account has been created','user'=>$user,'token'=>$token],201);
     }
     public function login(Request $request)
