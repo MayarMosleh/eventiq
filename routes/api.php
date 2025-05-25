@@ -40,8 +40,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('CheckAdmin')->group(function () {
 
 
-        Route::put('/event-requests/{id}', [EventController::class, 'update']);
-
         Route::get('/event-requests', [EventController::class, 'index']);
         Route::put('/event-requests/{id}', [EventController::class, 'approveEvent']);
     });
