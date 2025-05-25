@@ -19,7 +19,7 @@ class Company extends Model
 
     public function companyEvents(): HasMany
     {
-        return $this->hasMany(CompanyEvent::class);
+        return $this->hasMany(CompanyEvent::class)->withPivot('status')->withTimestamps();
     }
 
     public function bookings(): HasMany

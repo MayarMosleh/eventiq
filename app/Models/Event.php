@@ -13,7 +13,7 @@ class Event extends Model
     protected $guarded=["id"];
     public function companies()
     {
-        return $this->belongsToMany(Company::class, 'company_events')->withTimestamps();
+        return $this->belongsToMany(Company::class, 'company_events')->withPivot('status')->withTimestamps();
     }
 
     public function companyEvents(): HasMany

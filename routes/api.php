@@ -18,25 +18,26 @@ Route::get('/user', function (Request $request) {
 route::post('register', [UserController::class, 'register']);
 route::post('login', [UserController::class, 'login']);
 
-Route::middleware('auth:sanctum')->group(function()
-{
-route::post('logout',[UserController::class,'logout']);
+
+Route::middleware('auth:sanctum')->group(function(){
+
+    route::post('logout',[UserController::class,'logout']);
 
     route::apiResource('profiles', profileController::class);
 
 Route::middleware('CheckProvider')->group(function()
 {
-route::get('getAllUsers',[UserController::class,'index']);
-route::get('getUser/{id}',[UserController::class,'show']);
+    route::get('getAllUsers',[UserController::class,'index']);
+    route::get('getUser/{id}',[UserController::class,'show']);
 
-Route::post('/event-requests', [EventController::class, 'store']); 
+    Route::post('/event-requests', [EventController::class, 'store']); 
 
-route::apiResource('company', CompanyController::class);
+    route::apiResource('company', CompanyController::class);
 });
 
 Route::middleware('CheckAdmin')->group(function()
 {
- Route::get('/event-requests', [EventController::class, 'index']); 
-  Route::put('/event-requests/{id}', [EventController::class, 'update']);
+    Route::get('/event-requests', [EventController::class, 'index']); 
+    Route::put('/event-requests/{id}', [EventController::class, 'approveEvent']);
 });
 });

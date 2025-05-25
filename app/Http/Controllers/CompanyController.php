@@ -36,32 +36,16 @@ class CompanyController extends Controller
     return response()->json(['message' => 'unauthorized'], 403);
 }
 
-    /**
-     * Display the specified resource.
-     */
+    
     public function show(string $id)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+   
     public function update(UpdateCompanyRequest $request, $id)
     {
-        $user = Auth::user();
 
-    if ($user->role === 'provider') {
-        $validated = $request->validated();
-        $validated['user_id'] = $user->id;
-
-        $company = Company::findOrFail($id);
-        $company->update($validated);
-
-        return response()->json($company, 200);
-    }
-
-    return response()->json(['message' => 'unauthorized'], 403);
 
 }
     public function destroy(string $id)

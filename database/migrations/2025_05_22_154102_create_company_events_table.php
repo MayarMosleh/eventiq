@@ -11,10 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('company_event', function (Blueprint $table) {
+        Schema::create('company_events', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('event_id')->constrained('events')->onDelete('cascade');
+            $table->foreignId('event_id')->nullable()->constrained('events')->nullOnDelete();
+
             $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
+             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+              $table->string('event_name');
+            $table->text('description');
             $table->timestamps();
         });
     }
@@ -24,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('company_event');
+        Schema::dropIfExists('company_events');
     }
 };
