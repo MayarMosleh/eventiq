@@ -64,6 +64,7 @@ class CompanyController extends Controller
 
 
 
+
     public function destroy($id)
     {
         $user = auth()->user();
