@@ -22,7 +22,8 @@ class StoreCompanyRequest extends FormRequest
     public function rules(): array
     {
         return [
-           'company_name'=>'string|required','description'=>'string|required'
+            'company_name' => 'string|required|unique:companies',
+            'description' => 'string|required'
         ];
     }
 }

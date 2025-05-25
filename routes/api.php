@@ -29,14 +29,17 @@ Route::middleware('CheckProvider')->group(function()
 route::get('getAllUsers',[UserController::class,'index']);
 route::get('getUser/{id}',[UserController::class,'show']);
 
-Route::post('/event-requests', [EventController::class, 'store']); 
+Route::post('/event-requests', [EventController::class, 'store']);
 
 route::apiResource('company', CompanyController::class);
 });
 
+Route::post('/company/search', [CompanyController::class, 'search']);
+
+
 Route::middleware('CheckAdmin')->group(function()
 {
- Route::get('/event-requests', [EventController::class, 'index']); 
+ Route::get('/event-requests', [EventController::class, 'index']);
   Route::put('/event-requests/{id}', [EventController::class, 'update']);
 });
 });
