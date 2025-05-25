@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCompanyRequest;
+use App\Http\Requests\UpdateCompanyRequest;
 use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -46,14 +47,23 @@ class CompanyController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateCompanyRequest $request, $id)
     {
-        //
+        $user = Auth::user();
+
+    if ($user->role === 'provider') {
+        $validated = $request->validated();
+        $validated['user_id'] = $user->id;
+
+        $company = Company::findOrFail($id);
+        $company->update($validated);
+
+        return response()->json($company, 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    return response()->json(['message' => 'unauthorized'], 403);
+
+}
     public function destroy(string $id)
     {
         //

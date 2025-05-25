@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventRequestController;
 use App\Http\Controllers\profileController;
 use App\Http\Controllers\UserController;
@@ -27,13 +29,14 @@ Route::middleware('CheckProvider')->group(function()
 route::get('getAllUsers',[UserController::class,'index']);
 route::get('getUser/{id}',[UserController::class,'show']);
 
-Route::post('/event-requests', [EventRequestController::class, 'store']); 
+Route::post('/event-requests', [EventController::class, 'store']); 
 
+route::apiResource('company', CompanyController::class);
 });
 
 Route::middleware('CheckAdmin')->group(function()
 {
- Route::get('/event-requests', [EventRequestController::class, 'index']); 
-  Route::put('/event-requests/{id}', [EventRequestController::class, 'update']);
+ Route::get('/event-requests', [EventController::class, 'index']); 
+  Route::put('/event-requests/{id}', [EventController::class, 'update']);
 });
 });
