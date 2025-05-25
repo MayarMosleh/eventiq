@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('event_name');
             $table->text('description');
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            
             $table->timestamps();
         });
     }
