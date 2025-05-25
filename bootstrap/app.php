@@ -2,6 +2,8 @@
 
 use App\Http\Middleware\CheckIfAdmin;
 use App\Http\Middleware\checkUserRole;
+use App\Http\Middleware\EnsureEmailIsVerified;
+use App\Http\Middleware\VerifyCodeRateLimit;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -14,8 +16,14 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->alias(['CheckProvider'=>checkUserRole::class,'CheckAdmin'=>CheckIfAdmin::class]);
-    })
+
+        $middleware->alias([
+            'CheckProvider'=> CheckUserRole::class,
+            'CheckUser'=>checkUserRole::class,
+            'verified'     => EnsureEmailIsVerified::class,
+            'limit'        => VerifyCodeRateLimit::class,
+            'CheckAdmin'   => CheckIfAdmin::class
+        ]);})
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
