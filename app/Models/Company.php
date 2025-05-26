@@ -9,9 +9,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Company extends Model
 {
+    protected $guarded = [];
     public function events()
     {
-        return $this->belongsToMany(Event::class, 'company_events')->withTimestamps();
+        return $this->belongsToMany(Event::class, 'company_event')->withTimestamps();
     }
 
     public function companyEvents(): HasMany

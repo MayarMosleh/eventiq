@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CompanyEvent extends Model
 {
+    protected $guarded = [];
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);

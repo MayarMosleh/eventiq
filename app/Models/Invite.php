@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Invite extends Model
 {
+    protected $guarded = [];
     public function booking(): BelongsTo
     {
         return $this->belongsTo(booking::class);

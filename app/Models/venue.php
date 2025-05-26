@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class venue extends Model
 {
+    protected $guarded = [];
     public function company(): BelongsTo
     {
         return $this->belongsTo(company::class);

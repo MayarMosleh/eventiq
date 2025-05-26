@@ -10,7 +10,7 @@ class Event extends Model
 {
     public function companies()
     {
-        return $this->belongsToMany(Company::class, 'company_events')->withTimestamps();
+        return $this->belongsToMany(Company::class, 'company_event')->withTimestamps();
     }
 
     public function companyEvents(): HasMany

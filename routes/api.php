@@ -1,9 +1,14 @@
 <?php
+
+use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventRequestController;
 use App\Http\Controllers\profileController;
+use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Middleware\VerifyCodeRateLimit;
+use App\Models\Event;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -18,16 +23,21 @@ route::post('login', [UserController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     route::post('logout', [UserController::class, 'logout']);
 
-    route::apiResource('profiles', profileController::class);
-
-
     Route::middleware('verified')->group(function () {
-        Route::post('send-verification-code', [VerificationController::class, 'send'])->middleware(VerifyCodeRateLimit::class);
+
+
+        route::get('showEvents', [EventController::class, 'index']);
+        route::get('showProviders', [CompanyController::class, 'providers']);
+        route::get('showServices', [ServiceController::class, 'ShowServices']);
+
+
+        route::apiResource('profiles', profileController::class);
         Route::middleware('CheckProvider')->group(function () {
             route::get('getAllUsers', [UserController::class, 'index']);
             route::get('getUser/{id}', [UserController::class, 'show']);
             Route::post('/event-requests', [EventRequestController::class, 'store']);
         });
+
     });
 
 
@@ -36,6 +46,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/event-requests/{id}', [EventRequestController::class, 'update']);
     });
 
-
+    Route::post('send-verification-code', [VerificationController::class, 'send'])->middleware(VerifyCodeRateLimit::class);
     Route::post('verify-verification-code', [VerificationController::class, 'verify']);
+
+
 });
