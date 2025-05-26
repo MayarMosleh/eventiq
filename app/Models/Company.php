@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -9,10 +10,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Company extends Model
 {
-    protected $guarded = [];
+    use HasFactory;
+    protected $guarded=["id"];
+
     public function events()
     {
-        return $this->belongsToMany(Event::class, 'company_event')->withTimestamps();
+        return $this->belongsToMany(Event::class, 'company_events')->withTimestamps();
     }
 
     public function companyEvents(): HasMany

@@ -2,22 +2,18 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Models\Event;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use App\Http\Requests\StoreCompanyRequest;
+use App\Http\Requests\UpdateCompanyRequest;
+use App\Models\Company;
+use Illuminate\Support\Facades\Auth;
 class CompanyController extends Controller
 {
-    /*public function providers(Request $request): JsonResponse
-    {
-        $validatedData = $request->validate([
-            'event_id' => ['required','exists:events,id'],
-        ]);
 
-        $providers = Event::find($request->event_id)->companies()->select('companies.id','company_name',)->get()->makeHidden('pivot');
-        return response()->json($providers,200);
-    }*/
     public function providers(Request $request): JsonResponse
     {
         $validatedData = $request->validate([
@@ -35,5 +31,93 @@ class CompanyController extends Controller
             ->get();
 
         return response()->json($providers, 200);
-    }
 }
+        public function store(StoreCompanyRequest $request)
+    {
+        $user = Auth::user();
+
+        if ($user->role === 'provider') {
+
+            if ($user->company) {
+                return response()->json(['message' => 'لا يمكنك إنشاء أكثر من شركة واحدة.'], 409);
+            }
+
+            $validated = $request->validated();
+            $validated['user_id'] = $user->id;
+
+            $company = Company::create($validated);
+            return response()->json($company, 201);
+        }
+
+        return response()->json(['message' => 'unauthorized'], 403);
+    }
+
+
+        public function show($id)
+    {
+        $company = Company::findOrFail($id);
+        return response()->json($company, $status = 200);
+    }
+
+
+        public function update(UpdateCompanyRequest $request, $id)
+    {
+        $user = Auth::user();
+
+        if ($user->role === 'provider') {
+            $company = Company::findOrFail($id);
+
+            if ($company->user_id !== $user->id) {
+                return response()->json(['message' => 'unauthorized'], 403);
+            }
+
+            $validated = $request->validated();
+            $company->update($validated);
+
+            return response()->json($company, 200);
+        }
+
+        return response()->json(['message' => 'unauthorized'], 403);
+    }
+
+
+
+
+        public function destroy($id)
+    {
+        $user = auth()->user();
+
+
+        if ($user->role !== 'provider') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $company = Company::findOrFail($id);
+
+
+        if ($company->user_id !== $user->id) {
+            return response()->json(['message' => 'Forbidden - Not your company'], 403);
+        }
+
+        $company->delete();
+
+
+        return response()->json(['message' => 'the company has been deleted'], 200);
+    }
+
+
+         public function search(Request $request)
+      {
+        $company_name = $request->input('company_name');
+
+        $companies = Company::where('company_name', 'LIKE', "%{$company_name}%")->get();
+
+        if ($companies->isEmpty()) {
+            return response()->json(['message' => 'No companies found.'], 404);
+        }
+
+        return response()->json(['companies' => $companies], 200);
+      }
+    }
+
+
