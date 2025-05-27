@@ -8,15 +8,14 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Middleware\VerifyCodeRateLimit;
-//use App\Http\Controllers\VerificationController;
-//use App\Http\Middleware\VerifyCodeRateLimit;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
+
+
 
 route::post('register', [UserController::class, 'register']);
 route::post('login', [UserController::class, 'login']);
@@ -28,7 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('verified')->group(function () {
 
         route::get('showEvents', [EventController::class, 'showEvents']);
-        route::get('showProviders', [CompanyController::class, 'providers']);
+        route::get('showProviders', [CompanyController::class, 'showProviders']);
         route::get('showServices', [ServiceController::class, 'ShowServices']);
 
         route::apiResource('profiles', profileController::class);
@@ -45,8 +44,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('CheckAdmin')->group(function () {
 
+
         Route::get('/event-requests', [EventRequestController::class, 'index']);
         Route::post('/event-requests/{id}', [EventRequestController::class, 'adminResponse']);
+
     });
 
     Route::post('send-verification-code', [VerificationController::class, 'send'])->middleware(VerifyCodeRateLimit::class);

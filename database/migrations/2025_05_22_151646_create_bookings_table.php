@@ -17,6 +17,9 @@ return new class extends Migration
             $table->date('booking_date');
             $table->integer('company_id');
             $table->string('company_name');
+            $table->string('venue_name');
+            $table->decimal('venue_price ',10,2);
+            $table->string('venue_address');
             $table->decimal('total_price', 10, 2);
             $table->time('start_time');
             $table->time('end_time');

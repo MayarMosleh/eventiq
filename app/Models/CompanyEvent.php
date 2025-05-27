@@ -22,7 +22,7 @@ class CompanyEvent extends Model
         return $this->belongsTo(Event::class);
     }
 
-    public function service(): HasMany
+    public function services(): HasMany
     {
         return $this->hasMany(Service::class);
     }
