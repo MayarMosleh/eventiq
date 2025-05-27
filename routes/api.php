@@ -2,11 +2,14 @@
 
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\EventRequestController;
 use App\Http\Controllers\profileController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Middleware\VerifyCodeRateLimit;
+//use App\Http\Controllers\VerificationController;
+//use App\Http\Middleware\VerifyCodeRateLimit;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -34,15 +37,16 @@ Route::middleware('auth:sanctum')->group(function () {
             route::get('getAllUsers', [UserController::class, 'index']);
             route::get('getUser/{id}', [UserController::class, 'show']);
             route::apiResource('company', CompanyController::class);
-        });
+            Route::post('/event-requests', [EventRequestController::class, 'store']);
+              });
     });
 
     Route::post('/company/search', [CompanyController::class, 'search']);
 
     Route::middleware('CheckAdmin')->group(function () {
 
-        Route::get('/event-requests', [EventController::class, 'index']);
-        Route::put('/event-requests/{id}', [EventController::class, 'approveEvent']);
+        Route::get('/event-requests', [EventRequestController::class, 'index']);
+        Route::post('/event-requests/{id}', [EventRequestController::class, 'adminResponse']);
     });
 
     Route::post('send-verification-code', [VerificationController::class, 'send'])->middleware(VerifyCodeRateLimit::class);

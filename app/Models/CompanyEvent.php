@@ -10,7 +10,7 @@ class CompanyEvent extends Model
 {
 
      use HasFactory;
-    protected $fillable = ['company_id', 'event_name', 'description', 'status'];
+    protected $guarded = ['id'];
 
     public function company(): BelongsTo
     {

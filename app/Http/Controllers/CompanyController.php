@@ -39,7 +39,7 @@ class CompanyController extends Controller
         if ($user->role === 'provider') {
 
             if ($user->company) {
-                return response()->json(['message' => 'لا يمكنك إنشاء أكثر من شركة واحدة.'], 409);
+                return response()->json(['message' => 'you already have one'], 409);
             }
 
             $validated = $request->validated();
