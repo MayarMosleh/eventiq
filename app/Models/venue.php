@@ -7,7 +7,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class venue extends Model
 {
-    protected $guarded = [];
+    protected $fillable = [
+        'venue_name',
+        'address',
+        'capacity',
+        'venue_price',
+    ];
+
     public function company(): BelongsTo
     {
         return $this->belongsTo(company::class);

@@ -11,6 +11,7 @@ use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\UpdateCompanyRequest;
 use App\Models\Company;
 use Illuminate\Support\Facades\Auth;
+
 class CompanyController extends Controller
 {
 
@@ -54,14 +55,14 @@ class CompanyController extends Controller
     }
 
 
-        public function show($id)
+    public function show($id)
     {
         $company = Company::findOrFail($id);
         return response()->json($company, $status = 200);
     }
 
 
-        public function update(UpdateCompanyRequest $request, $id)
+    public function update(UpdateCompanyRequest $request, $id)
     {
         $user = Auth::user();
 
@@ -84,7 +85,7 @@ class CompanyController extends Controller
 
 
 
-        public function destroy($id)
+    public function destroy($id)
     {
         $user = auth()->user();
 
@@ -107,8 +108,8 @@ class CompanyController extends Controller
     }
 
 
-         public function search(Request $request)
-      {
+    public function search(Request $request)
+    {
         $company_name = $request->input('company_name');
 
         $companies = Company::where('company_name', 'LIKE', "%{$company_name}%")->get();
@@ -118,7 +119,5 @@ class CompanyController extends Controller
         }
 
         return response()->json(['companies' => $companies], 200);
-      }
     }
-
-
+}

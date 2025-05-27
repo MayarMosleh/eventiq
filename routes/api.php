@@ -6,6 +6,7 @@ use App\Http\Controllers\EventRequestController;
 use App\Http\Controllers\profileController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VenueController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Middleware\VerifyCodeRateLimit;
 use Illuminate\Http\Request;
@@ -37,17 +38,17 @@ Route::middleware('auth:sanctum')->group(function () {
             route::get('getUser/{id}', [UserController::class, 'show']);
             route::apiResource('company', CompanyController::class);
             Route::post('/event-requests', [EventRequestController::class, 'store']);
-              });
+
+            Route::post('/venues', [VenueController::class, 'store']);
+        });
     });
 
     Route::post('/company/search', [CompanyController::class, 'search']);
 
     Route::middleware('CheckAdmin')->group(function () {
 
-
         Route::get('/event-requests', [EventRequestController::class, 'index']);
         Route::post('/event-requests/{id}', [EventRequestController::class, 'adminResponse']);
-
     });
 
     Route::post('send-verification-code', [VerificationController::class, 'send'])->middleware(VerifyCodeRateLimit::class);

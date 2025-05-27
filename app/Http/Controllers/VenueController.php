@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\StoreVenueRequest;
+use App\Models\venue;
+use Illuminate\Container\Attributes\Auth;
+use Illuminate\Http\Request;
+
+class VenueController extends Controller
+{
+
+    public function store(StoreVenueRequest $request)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'provider') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $company = $user->company;
+
+        if (!$company) {
+            return response()->json(['message' => 'You don\'t have a company.'], 400);
+        }
+
+        $validated = $request->validated();
+        $validated['company_id'] = $company->id;
+
+
+        $venue = venue::create($validated);
+
+
+        return response()->json($venue, 201);
+    }
+}
