@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
+use App\Jobs\sendWelcome;
 use App\Mail\WelcomeMail;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -15,7 +16,7 @@ class UserController extends Controller
     {
         $user=User::create($request->validated());
         $token=$user->createToken('auth_token')->plainTextToken;
-        Mail::to($user->email)->send(new WelcomeMail($user));
+        sendWelcome::dispatch($user);
         return response()->json(['message'=>'this account has been created','user'=>$user,'token'=>$token],201);
     }
     public function login(Request $request)

@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('company_events', function (Blueprint $table) {
             $table->id();
             $table->foreignId('event_id')->nullable()->constrained('events')->nullOnDelete();
-
             $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
              $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
               $table->string('event_name');

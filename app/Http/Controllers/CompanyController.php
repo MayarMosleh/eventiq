@@ -14,25 +14,26 @@ use Illuminate\Support\Facades\Auth;
 class CompanyController extends Controller
 {
 
-    public function providers(Request $request): JsonResponse
+    public function showProviders(Request $request): JsonResponse
     {
         $validatedData = $request->validate([
             'event_id' => ['required', 'exists:events,id'],
         ]);
 
-        $providers = DB::table('company_event')
-            ->join('companies', 'company_event.company_id', '=', 'companies.id')
-            ->where('company_event.event_id', $validatedData['event_id'])
+        $providers = DB::table('company_events')
+            ->join('companies', 'company_events.company_id', '=', 'companies.id')
+            ->where('company_events.event_id', $validatedData['event_id'])
             ->select(
-                'company_event.id as company_event_id',
+                'company_events.id as company_event_id',
                 'companies.company_name',
-                'companies.description',
+                'companies.description'
             )
             ->get();
 
         return response()->json($providers, 200);
-}
-        public function store(StoreCompanyRequest $request)
+    }
+
+    public function store(StoreCompanyRequest $request)
     {
         $user = Auth::user();
 
