@@ -13,7 +13,7 @@ class VerifyCodeRateLimit
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $email = User::Auth()->email();
+        $email = auth()->user()->email;
         $key = 'send-code:' . $email;
 
         if (RateLimiter::tooManyAttempts($key, 3)) {
