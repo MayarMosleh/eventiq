@@ -14,7 +14,7 @@ class EventController extends Controller
 
     public function showEvents(): JsonResponse
     {
-        $events = Event::where('status', 'approved')->select('id', 'event_name', 'description')->get();
+        $events = Event::select('id', 'event_name', 'description')->get();
         return response()->json($events, 200);
     }
 

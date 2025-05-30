@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Booking extends Model
 {
 
-    protected $guarded = [];
+    protected $guarded = ['id'];
     protected $casts = [
         'booking_date' => 'date',
         'start_time' => 'datetime',

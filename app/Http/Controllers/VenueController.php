@@ -33,4 +33,12 @@ class VenueController extends Controller
 
         return response()->json($venue, 201);
     }
+
+    public function showVenue(Request $request){
+       $validateData = $request->validate([
+           'company_id' => 'required|exists:companies,id',
+       ]);
+        $venue = venue::where('company_id', $validateData['company_id'])->get();
+        return response()->json($venue, 200);
+    }
 }

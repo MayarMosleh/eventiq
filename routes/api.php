@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventRequestController;
@@ -41,6 +42,20 @@ Route::middleware('auth:sanctum')->group(function () {
 
             Route::post('/venues', [VenueController::class, 'store']);
         });
+
+        route::get('showEvents', [EventController::class, 'showEvents']);
+        route::get('showProviders', [CompanyController::class, 'showProviders']);
+        route::get('showServices', [ServiceController::class, 'ShowServices']);
+        route::get('showVenue', [VenueController::class, 'showVenue']);
+        route::post('createBooking',[BookingController::class, 'createBooking']);
+        route::post('selectEvent', [BookingController::class, 'selectEvent']);
+        route::post('selectProvider', [BookingController::class, 'selectProvider']);
+        route::post('selectVenue', [BookingController::class, 'selectVenue']);
+        route::post('selectService', [BookingController::class, 'selectService']);
+        route::post('confirmBooking', [BookingController::class, 'confirmBooking']);
+
+        route::apiResource('company', CompanyController::class);
+        route::post('logout', [UserController::class, 'logout']);
     });
 
     Route::post('/company/search', [CompanyController::class, 'search']);
