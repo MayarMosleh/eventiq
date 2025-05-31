@@ -5,14 +5,14 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class UpdateCompanyRequest extends FormRequest
+class UpdateVenueRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return false;
     }
 
     /**
@@ -23,13 +23,15 @@ class UpdateCompanyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'company_name' => [
+            'venue_name' =>[
                 'required',
                 'string',
-                Rule::unique('companies')->ignore($this->route('company')),
+                Rule::unique('venues')->ignore($this->route('venue')),
                 'sometimes|required'
             ],
-            'description' => 'sometimes|required|string',
+            'address' => 'string|sometimes|required',
+            'capacity' => 'sometimes|required|integer|min:10',
+            'venue_price' => 'sometimes|required|numeric|min:0',
         ];
     }
 }
