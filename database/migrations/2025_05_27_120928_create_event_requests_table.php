@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('event_requests', function (Blueprint $table) {
             $table->id();
-             $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
+            $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-              $table->string('event_name');
+            $table->string('event_name');
             $table->text('description');
             $table->timestamps();
         });

@@ -40,14 +40,14 @@ Route::middleware('auth:sanctum')->group(function () {
             route::apiResource('company', CompanyController::class);
             Route::post('/event-requests', [EventRequestController::class, 'store']);
 
-            Route::post('/venues', [VenueController::class, 'store']);
+            Route::apiResource('venues', VenueController::class);
         });
 
         route::get('showEvents', [EventController::class, 'showEvents']);
         route::get('showProviders', [CompanyController::class, 'showProviders']);
         route::get('showServices', [ServiceController::class, 'ShowServices']);
         route::get('showVenue', [VenueController::class, 'showVenue']);
-        route::post('createBooking',[BookingController::class, 'createBooking']);
+        route::post('createBooking', [BookingController::class, 'createBooking']);
         route::post('selectEvent', [BookingController::class, 'selectEvent']);
         route::post('selectProvider', [BookingController::class, 'selectProvider']);
         route::post('selectVenue', [BookingController::class, 'selectVenue']);

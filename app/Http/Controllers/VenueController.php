@@ -31,13 +31,14 @@ class VenueController extends Controller
         return response()->json($venue, 201);
     }
 
-    public function update(UpdateVenueRequest $request, $id){
+    public function update(UpdateVenueRequest $request, $id)
+    {
         $user = Auth::user();
 
         $venue = venue::findOrFail($id);
 
-        if($venue->company_id !== $user->company_id){
-            return response()->json(['message'=>'unauthorized'], 403);
+        if ($venue->company_id !== $user->company_id) {
+            return response()->json(['message' => 'unauthorized'], 403);
         }
 
         $validated = $request->validated();
@@ -46,11 +47,45 @@ class VenueController extends Controller
         return response()->json($venue, 200);
     }
 
-    public function showVenue(Request $request){
-       $validateData = $request->validate([
-           'company_id' => 'required|exists:companies,id',
-       ]);
+
+    public function index()
+    {
+        $user = Auth::user();
+
+        $company = $user->company;
+
+        if (!$company) {
+            return response()->json(['message' => 'you don\'t have a company'], 400);
+        }
+
+        $venues = $company->venues;
+
+        return response()->json($venues, 200);
+    }
+
+
+    public function showVenue(Request $request)
+    {
+        $validateData = $request->validate([
+            'company_id' => 'required|exists:companies,id',
+        ]);
         $venue = venue::where('company_id', $validateData['company_id'])->get();
         return response()->json($venue, 200);
+    }
+
+
+    public function destroy($id)
+    {
+        $user = Auth::user();
+
+        $venue = venue::findOrFail($id);
+
+        if ($venue->company_id !== $user->company_id) {
+            return response()->json(['message' => 'unauthorized'], 403);
+        }
+
+        $venue->delete();
+
+        return response()->json(['message' => 'the venue has been deleted successfully.'], 200);
     }
 }
