@@ -14,17 +14,20 @@ return new class extends Migration
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->date('booking_date');
-            $table->integer('company_id');
-            $table->string('company_name');
-            $table->string('venue_name');
-            $table->decimal('venue_price ',10,2);
-            $table->string('venue_address');
-            $table->decimal('total_price', 10, 2);
-            $table->time('start_time');
-            $table->time('end_time');
-            $table->integer('number_of_invites');
-            $table->enum('status', ['accepted', 'rejected', 'waiting'])->default('waiting');
+            $table->string('event_id')->nullable();
+            $table->string('event_name')->nullable();
+            $table->integer('company_id')->nullable();
+            $table->string('company_name')->nullable();
+            $table->integer('venue_id')->nullable();
+            $table->string('venue_name')->nullable();
+            $table->decimal('venue_price',10,2)->nullable();
+            $table->string('venue_address')->nullable();
+            $table->decimal('total_price', 10, 2)->nullable();
+            $table->time('start_time')->nullable();
+            $table->time('end_time')->nullable();
+            $table->date('booking_date')->nullable();
+            $table->integer('number_of_invites')->nullable();
+            $table->enum('status', ['accepted', 'rejected', 'waiting'])->nullable();
             $table->timestamps();
         });
     }

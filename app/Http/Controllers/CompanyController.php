@@ -26,8 +26,9 @@ class CompanyController extends Controller
             ->where('company_events.event_id', $validatedData['event_id'])
             ->select(
                 'company_events.id as company_event_id',
+                'companies.id as company_id',
                 'companies.company_name',
-                'companies.description'
+                'companies.description',
             )
             ->get();
 
