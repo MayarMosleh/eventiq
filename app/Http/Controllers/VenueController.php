@@ -6,12 +6,13 @@ use App\Http\Requests\StoreVenueRequest;
 use App\Http\Requests\UpdateVenueRequest;
 use App\Models\venue;
 use Illuminate\Container\Attributes\Auth;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class VenueController extends Controller
 {
 
-    public function store(StoreVenueRequest $request)
+    public function store(StoreVenueRequest $request): JsonResponse
     {
         $user = Auth::user();
 
@@ -31,7 +32,7 @@ class VenueController extends Controller
         return response()->json($venue, 201);
     }
 
-    public function update(UpdateVenueRequest $request, $id)
+    public function update(UpdateVenueRequest $request, $id): JsonResponse
     {
         $user = Auth::user();
 
@@ -48,7 +49,7 @@ class VenueController extends Controller
     }
 
 
-    public function index()
+    public function index(): JsonResponse
     {
         $user = Auth::user();
 
@@ -64,7 +65,7 @@ class VenueController extends Controller
     }
 
 
-    public function showVenue(Request $request)
+    public function showVenue(Request $request): JsonResponse
     {
         $validateData = $request->validate([
             'company_id' => 'required|exists:companies,id',
@@ -74,7 +75,7 @@ class VenueController extends Controller
     }
 
 
-    public function destroy($id)
+    public function destroy($id): JsonResponse
     {
         $user = Auth::user();
 

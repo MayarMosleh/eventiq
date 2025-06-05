@@ -18,10 +18,7 @@ return new class extends Migration
             $table->string('event_name')->nullable();
             $table->integer('company_id')->nullable();
             $table->string('company_name')->nullable();
-            $table->integer('venue_id')->nullable();
-            $table->string('venue_name')->nullable();
-            $table->decimal('venue_price',10,2)->nullable();
-            $table->string('venue_address')->nullable();
+
             $table->decimal('total_price', 10, 2)->nullable();
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();

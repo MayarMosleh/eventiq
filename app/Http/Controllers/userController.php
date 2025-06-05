@@ -6,8 +6,11 @@ use App\Http\Requests\StoreUserRequest;
 use App\Jobs\sendWelcome;
 use App\Mail\WelcomeMail;
 use App\Models\User;
+use App\Services\VerificationService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
@@ -48,5 +51,44 @@ class UserController extends Controller
     {
         $user=User::find($id);
         return response()->json($user,200);
+    }
+
+    public function requestPasswordReset(Request $request,VerificationService $resetPasswordService): JsonResponse
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user) {
+            return response()->json(['message' => 'Email not found.'], 404);
+        }
+
+        $resetPasswordService->sendCode($request->email);
+
+        return response()->json(['message' => 'Verification code sent to your email.']);
+    }
+
+    public function resetPassword(Request $request,VerificationService $resetPasswordService): JsonResponse
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'code' => 'required|string',
+            'password' => 'required|string|min:8',
+        ]);
+
+        if (! $resetPasswordService->verifyCode($request->email, $request->code)) {
+            return response()->json(['message' => 'Invalid or expired verification code.'], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+        $user->password = Hash::make($request->password);
+        $user->save();
+        return response()->json(['message' => 'Password has been reset successfully.']);
     }
 }
