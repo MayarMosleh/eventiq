@@ -12,10 +12,10 @@ class ServiceController extends Controller
     public function ShowServices(Request $request): JsonResponse
     {
         $validatedData = $request->validate([
-           'company_events_id'=>['required', 'integer', 'exists:company_events,id'],
+           'company_event_id'=>['required', 'integer', 'exists:company_events,id'],
         ]);
 
-        $services = Service::where('company_events_id', $validatedData['company_events_id'])->get();
+        $services = Service::where('company_events_id', $validatedData['company_event_id'])->get();
 
 
         return response()->json($services,200);

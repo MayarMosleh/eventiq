@@ -11,17 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('booking_services', function (Blueprint $table) {
+        Schema::create('booking_venues', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('booking_id')->constrained('bookings')->onDelete('cascade');
-            $table->unsignedBigInteger('service_id');
-            $table->string('service_name');
-            $table->decimal('service_price', 10, 2);
-            $table->text('service_description');
-            $table->integer('service_quantity');
+            $table->foreignId('booking_id')->constrained()->onDelete('cascade');
+            $table->integer('venue_id');
+            $table->string('venue_name');
+            $table->decimal('venue_price',10,2);
+            $table->string('venue_address');
             $table->time('start_time');
             $table->time('end_time');
-            $table->date('date');
+            $table->date('booking_date');
             $table->timestamps();
         });
     }
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('booking_services');
+        Schema::dropIfExists('booking_venues');
     }
 };

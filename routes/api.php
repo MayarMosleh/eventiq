@@ -21,16 +21,14 @@ Route::get('/user', function (Request $request) {
 
 route::post('register', [UserController::class, 'register']);
 route::post('login', [UserController::class, 'login']);
+route::post('requestPasswordReset', [UserController::class, 'requestPasswordReset']);
+route::post('resetPassword', [UserController::class, 'resetPassword']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
     route::post('logout', [UserController::class, 'logout']);
 
     Route::middleware('verified')->group(function () {
-
-        route::get('showEvents', [EventController::class, 'showEvents']);
-        route::get('showProviders', [CompanyController::class, 'showProviders']);
-        route::get('showServices', [ServiceController::class, 'ShowServices']);
 
         route::apiResource('profiles', profileController::class);
 
@@ -53,6 +51,9 @@ Route::middleware('auth:sanctum')->group(function () {
         route::post('selectVenue', [BookingController::class, 'selectVenue']);
         route::post('selectService', [BookingController::class, 'selectService']);
         route::post('confirmBooking', [BookingController::class, 'confirmBooking']);
+        route::delete('deleteServiceBooking', [BookingController::class, 'deleteServiceBooking']);
+        route::patch('updateQuantityService', [BookingController::class, 'updateQuantityService']);
+        route::delete('deleteVenue', [BookingController::class, 'deleteVenue']);
 
         route::apiResource('company', CompanyController::class);
         route::post('logout', [UserController::class, 'logout']);

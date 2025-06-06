@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\AddPriceAndCreatBookingVenue;
+use App\Actions\CalculatePriceAndCreateBookingService;
 use App\Models\Booking;
 use App\Models\BookingService;
 use App\Models\Company;
 use App\Models\Event;
 use App\Models\Service;
 use App\Models\venue;
+use App\Rules\ServiceQuantityAvailable;
+use App\Services\BookingServiceCheck;
+use App\Services\BookingVenueCheck;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,7 +32,6 @@ class BookingController extends Controller
             'booking_date' => 'required',
             'number_of_invites' => 'required',
         ]);
-
         $booking = Booking::create([
             'user_id' => Auth::user()->id,
             'start_time' => $validateData['start_time'],
@@ -37,6 +41,8 @@ class BookingController extends Controller
         ]);
         return response()->json(['message' => 'Booking has been created','booking_id'=>$booking->id],201);
     }
+
+
     public function selectEvent(Request $request): JsonResponse
     {
         $validatedData = $request->validate([
@@ -56,73 +62,129 @@ class BookingController extends Controller
         return response()->json(['message' => 'Event selected','booking_id'=>$booking->id,'event_id'=>$booking->event_id],201);
     }
 
+
     public function selectProvider(Request $request): JsonResponse
     {
-        $validateDate = $request->validate([
+        $validateData = $request->validate([
             'booking_id' => 'required|exists:bookings,id',
             'company_id' => 'required|exists:companies,id',
         ]);
 
-        $company = Company::find($validateDate['company_id']);
-        $booking = Booking::find($validateDate['booking_id']);
+        $company = Company::find($validateData['company_id']);
+        $booking = Booking::find($validateData['booking_id']);
         if(!is_null($booking->company_id)){
             return response()->json(['message' => 'Company already selected'],409);
         }
-         Booking::where('id',$validateDate['booking_id'])->update([
-            'company_id' => $validateDate['company_id'],
+         Booking::where('id',$validateData['booking_id'])->update([
+            'company_id' => $validateData['company_id'],
             'company_name' => $company->company_name,
         ]);
         return response()->json(['message' => 'Provider selected'],201);
     }
 
-    public function selectVenue(Request $request): JsonResponse
+
+    public function selectVenue(Request $request,BookingVenueCheck $check,AddPriceAndCreatBookingVenue $creatBookingVenue): JsonResponse
     {
         $validatedData = $request->validate([
             'booking_id' => 'required|exists:bookings,id',
             'venue_id' => 'required|exists:venues,id',
         ]);
         $booking = Booking::find($validatedData['booking_id']);
-        if (!is_null($booking->venue_id)) {
+        if ($booking->venue()->exists()){
             return response()->json(['message' => 'Venue already Selected'], 409);
         }
-        $venue = venue::find($validatedData['venue_id']);
-        $price = $venue->venue_price + Booking::where('id',$validatedData['booking_id'])->value('total_price');
-         Booking::where('id',$validatedData['booking_id'])->update([
-            'venue_id' => $validatedData['venue_id'],
-            'venue_name' => $venue->venue_name,
-            'venue_address' => $venue->address,
-            'venue_price' => $venue->venue_price,
-            'total_price' => $price,
-        ]);
+        $checkVenue = $check->checkAvailability($validatedData['venue_id'],$booking->start_time,$booking->end_time,$booking->booking_date);
+        if (!$checkVenue){
+            return response()->json(['message' => 'Venue not available'], 409);
+        }
+        $creatBookingVenue($booking,$validatedData);
         return response()->json(['message' => 'Venue selected'],201);
 
     }
 
-    public function selectService(Request $request): JsonResponse
+
+    public function selectService(Request $request,BookingServiceCheck $check): JsonResponse
     {
 
-        $validateDate = $request->validate([
+        $validateData = $request->validate([
             'booking_id' => 'required|exists:bookings,id',
             'service_id' => 'required|exists:services,id',
+            'service_quantity' => ['required','integer','min:1',new ServiceQuantityAvailable($request->input('service_id'))],
         ]);
 
-        $booking = Booking::find($validateDate['booking_id']);
-        if ($booking->bookingServices()->where('service_id',$validateDate['service_id'])->exists()) {
+        $booking = Booking::find($validateData['booking_id']);
+        if ($booking->bookingServices()->where('service_id',$validateData['service_id'])->exists()) {
             return response()->json(['message' => 'Service already selected'], 409);
         }
-        $service = Service::find($validateDate['service_id']);
-        BookingService::create([
-            'booking_id' => $validateDate['booking_id'],
-            'service_id' => $validateDate['service_id'],
-            'service_name' => $service->service_name,
-            'service_price' => $service->service_price,
-            'service_description' => $service->service_description,
+
+        $checkService = $check->checkAvailability($validateData['service_id'],$booking->start_time,$booking->end_time,$validateData['service_quantity'],$booking->booking_date);
+        if (!$checkService){
+            return response()->json(['message' => 'Service not available'], 409);
+        }
+        $total_price = (new CalculatePriceAndCreateBookingService)($booking,$validateData);
+        $newTotalPrice = $booking->total_price + $total_price;
+        $booking->update([
+            'total_price' => $newTotalPrice,
         ]);
-        $price = $service->service_price + Booking::where('id',$validateDate['booking_id'])->value('total_price');
-        Booking::where('id',$validateDate['booking_id'])->update([
-            'total_price' => $price,
-        ]);
+
         return response()->json(['message' => 'Service selected'],201);
+    }
+
+    public function deleteServiceBooking(Request $request): JsonResponse
+    {
+        $validateData = $request->validate([
+            'booking_id' => 'required|exists:bookings,id',
+            'service_id' => 'required|exists:booking_services,id',
+        ]);
+        $bookingService = BookingService::where('booking_id',$validateData['booking_id'])->where('service_id',$validateData['service_id'])->first();
+        $booking = Booking::find($validateData['booking_id']);
+        $updatePrice = $booking->total_price - $bookingService->service_price;
+        $booking->update([
+            'total_price' => $updatePrice,
+        ]);
+        $bookingService->delete();
+        return response()->json(['message' => 'Deleted successfully'], 200);
+    }
+
+    public function updateQuantityService(Request $request,BookingServiceCheck $check): JsonResponse
+    {
+        $validateData = $request->validate([
+            'booking_id' => 'required|exists:bookings,id',
+            'service_id' => 'required|exists:services,id',
+            'service_quantity' => ['required','integer','min:1',new ServiceQuantityAvailable($request->input('service_id'))],
+        ]);
+        $booking = Booking::find($validateData['booking_id']);
+        $service = Service::where('id',$validateData['service_id'])->first();
+        $serviceBooking = BookingService::where('booking_id',$validateData['booking_id'])->where('service_id',$validateData['service_id'])->first();
+        if ($serviceBooking->service_quantity > $validateData['service_quantity']){
+            $newServicePrice = $service->service_price * $validateData['service_quantity'];
+            $newTotalPrice = ($booking->total_price - $serviceBooking->service_price) + $newServicePrice;
+            $serviceBooking->update([
+               'service_price' => $newServicePrice,
+               'service_quantity' => $validateData['service_quantity'],
+            ]);
+            $booking->update([
+                'total_price' => $newTotalPrice,
+            ]);
+            return response()->json(['message' => 'Quantity Updated'],200);
+        }
+        elseif ($serviceBooking->service_quantity < $validateData['service_quantity']){
+            $checkService = $check->checkAvailability($validateData['service_id'],$booking->start_time,$booking->end_time,$validateData['service_quantity'],$booking->booking_date,$validateData['service_id']);
+            if (!$checkService){
+                return response()->json(['message' => 'Service not available'], 409);
+            }
+            $lastPrice = $booking->total_price - $serviceBooking->service_price;
+            $serviceBooking->update([
+                'service_price' => $service->service_price * $validateData['service_quantity'],
+                'service_quantity' => $validateData['service_quantity'],
+            ]);
+            $newTotalPrice = $lastPrice + $serviceBooking->service_price;
+            $booking->update([
+                'total_price' => $newTotalPrice,
+            ]);
+            return response()->json(['message' => 'Quantity Updated'],200);
+        }
+        return response()->json(['message' => 'Quantity is already the same, no changes applied'], 200);
     }
 
     public function confirmBooking(Request $request): JsonResponse
@@ -139,6 +201,22 @@ class BookingController extends Controller
             return response()->json(['message' => 'Booking are waiting'],201);
         }
         return response()->json(['message' => 'Booking is Waiting'], 409);
+    }
+
+    public function deleteVenue(Request $request): JsonResponse
+    {
+        $validatedData = $request->validate([
+            'booking_id' => 'required|exists:bookings,id',
+        ]);
+        $booking = Booking::findOrFail($validatedData['booking_id']);
+        $venue = $booking->venue;
+
+        $booking->update([
+            'total_price' => $booking->total_price - $venue->venue_price,
+            ]);
+            $venue->delete();
+            return response()->json(['message' => 'Venue Deleted'], 200);
+
     }
 
 }
