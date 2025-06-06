@@ -64,6 +64,13 @@ class VenueController extends Controller
     }
 
 
+    public function show($id){
+        $venue = venue::findOrFail($id);
+
+        return response()->json($venue, 200);
+    }
+
+
     public function showVenue(Request $request)
     {
         $validateData = $request->validate([

@@ -68,4 +68,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('send-verification-code', [VerificationController::class, 'send'])->middleware(VerifyCodeRateLimit::class);
     Route::post('verify-verification-code', [VerificationController::class, 'verify']);
+
+
+    Route::get('venues/{venue}', [VenueController::class, 'show'])->middleware('auth:sanctum');
+
 });
