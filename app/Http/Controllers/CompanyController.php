@@ -62,6 +62,15 @@ class CompanyController extends Controller
         return response()->json($company, $status = 200);
     }
 
+    public function index(): JsonResponse
+    {
+        $user = Auth::user();
+
+        $companies = Company::all();
+
+
+        return response()->json($companies, 200);
+    }
 
     public function update(UpdateCompanyRequest $request, $id)
     {
