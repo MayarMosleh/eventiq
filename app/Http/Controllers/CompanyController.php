@@ -45,6 +45,11 @@ class CompanyController extends Controller
                 return response()->json(['message' => 'you already have one'], 409);
             }
 
+            if ($request->hasFile('company_image')) {
+                $path = $request->file('company_image')->store('Company Photos', 'public');
+                $validated['company_image'] = $path;
+            }
+
             $validated = $request->validated();
             $validated['user_id'] = $user->id;
 
@@ -127,5 +132,17 @@ class CompanyController extends Controller
         }
 
         return response()->json(['companies' => $companies], 200);
+    }
+
+    public function getAverageRating($companyId)
+    {
+        $company = Company::findOrFail($companyId);
+
+        $averageRating = $company->ratings()->avg('rating');
+
+        return response()->json([
+            'company_id' => $company->id,
+            'average_rating' => $averageRating ?? 0,
+        ]);
     }
 }

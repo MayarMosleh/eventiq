@@ -42,8 +42,14 @@ class Company extends Model
     {
         return $this->belongsTo(User::class);
     }
+
     public function eventRequest()
     {
         return $this->hasMany(EventRequest::class);
+    }
+
+    public function ratings()
+    {
+        return $this->hasManyThrough(Rating::class, Booking::class);
     }
 }

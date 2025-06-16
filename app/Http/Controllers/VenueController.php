@@ -22,6 +22,11 @@ class VenueController extends Controller
             return response()->json(['message' => 'You don\'t have a company.'], 400);
         }
 
+        if($request->hasFile('venue_image')){
+            $path = $request->file('venue_image')->store('Venue Photos', 'public');
+            $validated['venue_image'] = $path;
+        }
+
         $validated = $request->validated();
         $validated['company_id'] = $company->id;
 

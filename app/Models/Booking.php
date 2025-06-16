@@ -47,4 +47,9 @@ class Booking extends Model
     {
         return $this->hasOne(BookingVenue::class);
     }
+
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
 }

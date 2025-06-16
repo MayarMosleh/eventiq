@@ -5,6 +5,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventRequestController;
 use App\Http\Controllers\profileController;
+use App\Http\Controllers\RatingController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VenueController;
@@ -55,8 +56,10 @@ Route::middleware('auth:sanctum')->group(function () {
         route::patch('updateQuantityService', [BookingController::class, 'updateQuantityService']);
         route::delete('deleteVenue', [BookingController::class, 'deleteVenue']);
 
-        route::apiResource('company', CompanyController::class);
+
         route::post('logout', [UserController::class, 'logout']);
+
+        Route::post('/ratings', [RatingController::class, 'store']);
     });
 
     Route::post('/company/search', [CompanyController::class, 'search']);
@@ -70,8 +73,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('send-verification-code', [VerificationController::class, 'send'])->middleware(VerifyCodeRateLimit::class);
     Route::post('verify-verification-code', [VerificationController::class, 'verify']);
 
-    Route::get('companies', [CompanyController::class, 'index'])->middleware('auth:sanctum');
 
-    Route::get('venues/{venue}', [VenueController::class, 'show'])->middleware('auth:sanctum');
-
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/companies', [CompanyController::class, 'index']);
+        Route::get('/venues/{venue}', [VenueController::class, 'show']);
+        Route::get('/companies/{company}/rating', [RatingController::class, 'getCompanyRating']);
+    });
 });

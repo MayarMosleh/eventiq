@@ -23,7 +23,8 @@ class StoreCompanyRequest extends FormRequest
     {
         return [
             'company_name' => 'string|required|unique:companies',
-            'description' => 'string|required'
+            'description' => 'string|required',
+            'company_image' => 'required|image|mimes:png,jpg,jpeg|max:2048'
         ];
     }
 }
