@@ -256,4 +256,15 @@ class BookingController extends Controller
 
         return response()->json(['message' => 'Venue Deleted'], 200);
     }
+
+
+    public function cancelBooking(Request $request): JsonResponse
+    {
+       $validatedData = $request->validate([
+           'booking_id' => 'required|exists:bookings,id',
+       ]);
+       Booking::findOrFail($validatedData['booking_id'])->delete();
+       return response()->json(['message' => 'Booking Deleted'], 200);
+    }
+
 }

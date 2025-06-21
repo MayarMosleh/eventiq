@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Services\VerificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class VerificationController extends Controller
 {
@@ -30,10 +31,7 @@ class VerificationController extends Controller
         $request->validate([
             'code' => 'required',
         ]);
-
         $user = $request->user();
-
-
         if ($this->verifier->verifyCode($user->email, $request->code)) {
             if (is_null($user->email_verified_at)) {
                 $user->email_verified_at = now();
