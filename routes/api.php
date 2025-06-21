@@ -7,6 +7,7 @@ use App\Http\Controllers\EventRequestController;
 use App\Http\Controllers\profileController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\StripeConnectController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VenueController;
 use App\Http\Controllers\VerificationController;
@@ -60,12 +61,17 @@ Route::middleware('auth:sanctum')->group(function () {
         route::post('logout', [UserController::class, 'logout']);
 
         Route::post('/ratings', [RatingController::class, 'store']);
+        route::apiResource('company', CompanyController::class);
+        route::post('logout', [UserController::class, 'logout']);
+
+        route::post('createAccountStripe', [StripeConnectController::class, 'connect']);
+        route::post('payment', [StripeConnectController::class, 'pay'])->middleware('CheckStripeAccount');
+        route::delete('cancelBooking', [BookingController::class, 'cancelBooking']);
     });
 
     Route::post('/company/search', [CompanyController::class, 'search']);
 
     Route::middleware('CheckAdmin')->group(function () {
-
         Route::get('/event-requests', [EventRequestController::class, 'index']);
         Route::post('/event-requests/{id}', [EventRequestController::class, 'adminResponse']);
     });
