@@ -22,6 +22,11 @@ class VenueController extends Controller
             return response()->json(['message' => 'You don\'t have a company.'], 400);
         }
 
+        if($request->hasFile('venue_image')){
+            $path = $request->file('venue_image')->store('Venue Photos', 'public');
+            $validated['venue_image'] = $path;
+        }
+
         $validated = $request->validated();
         $validated['company_id'] = $company->id;
 
@@ -62,6 +67,13 @@ class VenueController extends Controller
         $venues = $company->venues;
 
         return response()->json($venues, 200);
+    }
+
+
+    public function show($id){
+        $venue = venue::findOrFail($id);
+
+        return response()->json($venue, 200);
     }
 
 

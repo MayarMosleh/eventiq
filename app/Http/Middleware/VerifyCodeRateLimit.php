@@ -15,7 +15,6 @@ class VerifyCodeRateLimit
     {
         $email = auth()->user()->email;
         $key = 'send-code:' . $email;
-
         if (RateLimiter::tooManyAttempts($key, 3)) {
             return response()->json([
                 'message' => 'Too many requests. Please try again after 5 minutes.'

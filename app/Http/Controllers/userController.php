@@ -17,8 +17,8 @@ class UserController extends Controller
 {
     public function register(StoreUserRequest $request)
     {
-        $user=User::create($request->validated());
-        $token=$user->createToken('auth_token')->plainTextToken;
+        $user = User::create($request->validated());
+        $token = $user->createToken('auth_token')->plainTextToken;
         sendWelcome::dispatch($user);
         return response()->json(['message'=> __('auth.register_success'),'user'=>$user,'token'=>$token],201);
     }
@@ -56,8 +56,7 @@ class UserController extends Controller
         $user=User::find($id);
         return response()->json($user,200);
     }
-
-    public function requestPasswordReset(Request $request,VerificationService $resetPasswordService): JsonResponse
+    public function requestPasswordReset(Request $request, VerificationService $resetPasswordService): JsonResponse
     {
         $request->validate([
             'email' => 'required|email',
@@ -74,7 +73,8 @@ class UserController extends Controller
         return response()->json(['message' =>__('auth.send verify code')]);
     }
 
-    public function resetPassword(Request $request,VerificationService $resetPasswordService): JsonResponse
+
+    public function resetPassword(Request $request, VerificationService $resetPasswordService): JsonResponse
     {
         $request->validate([
             'email' => 'required|email',

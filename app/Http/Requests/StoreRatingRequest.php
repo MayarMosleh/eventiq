@@ -4,14 +4,14 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreProfileRequest extends FormRequest
+class StoreRatingRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return true;
+        return false;
     }
 
     /**
@@ -22,10 +22,9 @@ class StoreProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'img' => 'required|image|max:2048|mimes:png,jpg',
-            'phone' => 'integer',
-            'address' => 'string|nullable',
-            'birthDate' => 'date'
+            'booking_id' => 'required|exists:bookings,id',
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string',
         ];
     }
 }

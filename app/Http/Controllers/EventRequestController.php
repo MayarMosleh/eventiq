@@ -26,10 +26,10 @@ class EventRequestController extends Controller
         return response()->json(['error' => 'There is no company file associated with the account'], 400);
     }
 
-    $alreadySubmitted =EventRequest::where('company_id', $company->id)
-        ->where('event_name', $request->event_name)
-        ->whereIn('status', ['pending', 'rejected'])
-        ->exists();
+        $alreadySubmitted = EventRequest::where('company_id', $company->id)
+            ->where('event_name', $request->event_name)
+            ->whereIn('status', ['pending', 'rejected'])
+            ->exists();
 
     if ($alreadySubmitted) {
         return response()->json(['message' => 'this event has already been submitted and is either under review or rejected'], 409);
@@ -92,4 +92,23 @@ public function index(): JsonResponse//هاد للادمن
        $requests =EventRequest::latest()->take(5)->get();
         return response()->json($requests);
     }
+
+
+    public function destroyAnsweredRequest($id): JsonResponse
+    {
+        $eventRequest = EventRequest::findOrFail($id);
+
+        if(!$eventRequest) {
+            return response()->json(['message'=>'الطلب غير موجود.'], 404);
+        }
+
+        if($eventRequest->status === 'pending'){
+            return response()->json(['message'=>'لا يمكنك حذف طلب لم يتم الرد عليه.'], 403);
+        }
+
+        $eventRequest->delete();
+
+        return response()->json(['message'=>'تم حذف الطلب بنجاح.'], 200);
+    }
+
 }

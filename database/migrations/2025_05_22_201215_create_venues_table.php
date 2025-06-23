@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('capacity');
             $table->decimal('venue_price', 10, 2);
             $table->foreignId('company_id')->constrained('companies')->onDelete('cascade');
+            $table->string('img');
             $table->timestamps();
         });
     }
