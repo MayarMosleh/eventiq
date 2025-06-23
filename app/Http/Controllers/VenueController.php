@@ -37,6 +37,7 @@ class VenueController extends Controller
         return response()->json($venue, 201);
     }
 
+
     public function update(UpdateVenueRequest $request, $id): JsonResponse
     {
         $user = Auth::user();

@@ -24,7 +24,6 @@ class RatingController extends Controller
             return response()->json(['message' => 'You can only rate your own bookings.'], 403);
         }
 
-        // نحصل على البيانات بعد التحقق
         $validated = $request->validated();
 
         $rating = Rating::create([
