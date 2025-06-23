@@ -24,8 +24,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'CheckUser'=>checkUserRole::class,
             'verified'     => EnsureEmailIsVerified::class,
             'limit'        => VerifyCodeRateLimit::class,
-            'CheckAdmin'   => CheckIfAdmin::class
-        ]);})
+            'CheckAdmin'   => CheckIfAdmin::class,
+            'lang'         =>SetLocale::class,
+            'CheckStripeAccount' =>CheckStripeAccount::class]);
+        })
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
