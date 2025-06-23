@@ -49,7 +49,6 @@ Route::middleware('verified')->group(function () {
         Route::get('/venues/{venue}', [VenueController::class, 'show']);
         Route::get('/companies/{company}/rating', [RatingController::class, 'getCompanyRating']);
         Route::post('/ratings', [RatingController::class, 'store']);
-        route::apiResource('company', CompanyController::class);
         route::post('logout', [UserController::class, 'logout']);
         Route::post('/company/search', [CompanyController::class, 'search']);
         route::post('createAccountStripe', [StripeConnectController::class, 'connect']);
@@ -60,6 +59,7 @@ Route::middleware('verified')->group(function () {
          Route::post('/event-requests', [EventRequestController::class, 'store']);
          Route::post('/device-token', [DeviceTokenController::class, 'store']);
          Route::apiResource('venues', VenueController::class);
+         route::apiResource('company', CompanyController::class);
         });
     Route::middleware('CheckAdmin')->group(function () {
         Route::get('/event-requests', [EventRequestController::class, 'index']);
