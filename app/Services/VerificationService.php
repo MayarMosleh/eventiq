@@ -11,14 +11,12 @@ use Illuminate\Support\Facades\Mail;
 
 class VerificationService
 {
-
     public function sendCode(string $email): void
     {
         $code = $this->generateCode();
         Cache::put($this->cacheKey($email), Hash::make($code), now()->addMinutes(2));
         SendVerificationCodeEmail::dispatch($email, $code);
     }
-
 
     public function verifyCode(string $email, string $inputCode): bool
     {

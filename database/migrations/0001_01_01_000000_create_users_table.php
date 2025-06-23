@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('password');
              $table->enum('role',['user','provider','admin'])->default('user');
             $table->rememberToken();
+            $table->integer('stripe_account_id')->nullable();
             $table->timestamps();
         });
 
