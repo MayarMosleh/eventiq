@@ -80,6 +80,7 @@ class BookingController extends Controller
             'company_name' => $company->company_name,
         ]);
         return response()->json(['message' => 'Provider selected'],201);
+    
     }
 
 

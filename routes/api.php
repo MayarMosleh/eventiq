@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\DeviceTokenController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventRequestController;
 use App\Http\Controllers\profileController;
@@ -18,7 +19,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-
+ Route::middleware('lang')->group(function () {
 route::post('register', [UserController::class, 'register']);
 route::post('login', [UserController::class, 'login']);
 route::post('requestPasswordReset', [UserController::class, 'requestPasswordReset']);
@@ -37,7 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
             route::get('getUser/{id}', [UserController::class, 'show']);
             route::apiResource('company', CompanyController::class);
             Route::post('/event-requests', [EventRequestController::class, 'store']);
-
+            Route::post('/device-token', [DeviceTokenController::class, 'store']);
             Route::apiResource('venues', VenueController::class);
         });
 
@@ -69,4 +70,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('send-verification-code', [VerificationController::class, 'send'])->middleware(VerifyCodeRateLimit::class);
     Route::post('verify-verification-code', [VerificationController::class, 'verify']);
+});
 });
