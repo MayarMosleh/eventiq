@@ -21,29 +21,17 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
- Route::middleware('lang')->group(function () {
-route::post('register', [UserController::class, 'register']);
-route::post('login', [UserController::class, 'login']);
-route::post('requestPasswordReset', [UserController::class, 'requestPasswordReset']);
-route::post('resetPassword', [UserController::class, 'resetPassword']);
-
+Route::middleware('lang')->group(function () {
+        route::post('register', [UserController::class, 'register']);
+        route::post('login', [UserController::class, 'login']);
+        route::post('requestPasswordReset', [UserController::class, 'requestPasswordReset']);
+        route::post('resetPassword', [UserController::class, 'resetPassword']);
+        Route::post('send-verification-code', [VerificationController::class, 'send'])->middleware(VerifyCodeRateLimit::class);
+        Route::post('verify-verification-code', [VerificationController::class, 'verify']);
 Route::middleware('auth:sanctum')->group(function () {
-
-    route::post('logout', [UserController::class, 'logout']);
-
-    Route::middleware('verified')->group(function () {
+Route::middleware('verified')->group(function () {
 
         route::apiResource('profiles', profileController::class);
-
-        Route::middleware('CheckProvider')->group(function () {
-            route::get('getAllUsers', [UserController::class, 'index']);
-            route::get('getUser/{id}', [UserController::class, 'show']);
-            route::apiResource('company', CompanyController::class);
-            Route::post('/event-requests', [EventRequestController::class, 'store']);
-            Route::post('/device-token', [DeviceTokenController::class, 'store']);
-            Route::apiResource('venues', VenueController::class);
-        });
-
         route::get('showEvents', [EventController::class, 'showEvents']);
         route::get('showProviders', [CompanyController::class, 'showProviders']);
         route::get('showServices', [ServiceController::class, 'ShowServices']);
@@ -56,35 +44,28 @@ Route::middleware('auth:sanctum')->group(function () {
         route::post('confirmBooking', [BookingController::class, 'confirmBooking']);
         route::delete('deleteServiceBooking', [BookingController::class, 'deleteServiceBooking']);
         route::patch('updateQuantityService', [BookingController::class, 'updateQuantityService']);
-        route::delete('deleteVenue', [BookingController::class, 'deleteVenue']);
-
-
-        route::post('logout', [UserController::class, 'logout']);
-
+        route::delete('deleteVenue', [BookingController::class, 'deleteVenue']);        
+        Route::get('/companies', [CompanyController::class, 'index']);
+        Route::get('/venues/{venue}', [VenueController::class, 'show']);
+        Route::get('/companies/{company}/rating', [RatingController::class, 'getCompanyRating']);
         Route::post('/ratings', [RatingController::class, 'store']);
         route::apiResource('company', CompanyController::class);
         route::post('logout', [UserController::class, 'logout']);
-
+        Route::post('/company/search', [CompanyController::class, 'search']);
         route::post('createAccountStripe', [StripeConnectController::class, 'connect']);
         route::post('payment', [StripeConnectController::class, 'pay'])->middleware('CheckStripeAccount');
         route::delete('cancelBooking', [BookingController::class, 'cancelBooking']);
     });
-
-    Route::post('/company/search', [CompanyController::class, 'search']);
-
+    Route::middleware('CheckProvider')->group(function () {
+         Route::post('/event-requests', [EventRequestController::class, 'store']);
+         Route::post('/device-token', [DeviceTokenController::class, 'store']);
+         Route::apiResource('venues', VenueController::class);
+        });
     Route::middleware('CheckAdmin')->group(function () {
         Route::get('/event-requests', [EventRequestController::class, 'index']);
         Route::post('/event-requests/{id}', [EventRequestController::class, 'adminResponse']);
-    });
-
-    Route::post('send-verification-code', [VerificationController::class, 'send'])->middleware(VerifyCodeRateLimit::class);
-    Route::post('verify-verification-code', [VerificationController::class, 'verify']);
-
-
-    Route::middleware('auth:sanctum')->group(function () {
-        Route::get('/companies', [CompanyController::class, 'index']);
-        Route::get('/venues/{venue}', [VenueController::class, 'show']);
-        Route::get('/companies/{company}/rating', [RatingController::class, 'getCompanyRating']);
+        route::get('getAllUsers', [UserController::class, 'index']);
+        route::get('getUser/{id}', [UserController::class, 'show']);
     });
 });
 });
