@@ -1,0 +1,22 @@
+<?php 
+return[
+    'Please Confirm the previous reservation first'=>'Please Confirm the previous reservation first',
+    'Booking has been created'=>'Booking has been created',
+    'Event already Selected'=>'Event already Selected',
+    'Event selected'=>'Event selected',
+    'Company already selected'=>'Company already selected',
+    'Provider selected'=>'Provider selected',
+    'Venue already Selected'=>'Venue already Selected',
+    'Venue not available'=>'Venue not available',
+    'Venue selected'=>'Venue selected',
+    'Service already selected'=>'Service already selected',
+    'Service not available'=>'Service not available',
+    'Service selected'=>'Service selected',
+    'Deleted successfully'=>'Deleted successfully',
+    'Quantity Updated'=>'Quantity Updated',
+    'Quantity is already the same, no changes applied'=>'Quantity is already the same, no changes applied',
+    'Booking is Waiting'=>'Booking is Waiting',
+    'Venue Deleted'=>'Venue Deleted',
+    'Booking Deleted'=>'Booking Deleted',
+    ''=>'',
+];

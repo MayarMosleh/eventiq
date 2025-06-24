@@ -21,7 +21,7 @@ class RatingController extends Controller
             ->first();
 
         if (!$booking) {
-            return response()->json(['message' =>__('You can only rate your own bookings')], 403);
+            return response()->json(['message' =>__('rating.You can only rate your own bookings')], 403);
         }
 
         // نحصل على البيانات بعد التحقق
@@ -34,6 +34,6 @@ class RatingController extends Controller
             'comment' => $validated['comment'] ?? null,
         ]);
 
-        return response()->json(['message' =>__('Rating submitted successfully'), 'data' => $rating], 201);
+        return response()->json(['message' =>__('rating.Rating submitted successfully'), 'data' => $rating], 201);
     }
 }

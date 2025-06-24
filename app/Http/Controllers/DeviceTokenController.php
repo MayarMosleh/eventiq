@@ -21,7 +21,7 @@ public function store(Request $request)
         'platform' => $request->platform,
     ]);
 
-    return response()->json(['message' =>__('Token saved')]);
+    return response()->json(['message' =>__('notif.Token saved')]);
 }
 
 }

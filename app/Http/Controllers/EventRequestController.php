@@ -23,7 +23,7 @@ class EventRequestController extends Controller
     $company = $user->company;
 
     if (!$company) {
-        return response()->json(['error' => 'There is no company file associated with the account'], 400);
+        return response()->json(['error' =>__('eventRequest.There is no company file associated with the account')], 400);
     }
 
         $alreadySubmitted = EventRequest::where('company_id', $company->id)
@@ -32,7 +32,7 @@ class EventRequestController extends Controller
             ->exists();
 
     if ($alreadySubmitted) {
-        return response()->json(['message' => 'this event has already been submitted and is either under review or rejected'], 409);
+        return response()->json(['message' =>__('eventRequest.this event has already been submitted and is either under review or rejected')], 409);
     }
 
     EventRequest::create([
@@ -47,7 +47,7 @@ class EventRequestController extends Controller
         $admin->notify(new FirebaseNotificationService( 'New request to add an event', 'provider: ' . $user->name . ' submitted a request to add : ' . $request->event_name ));
     }
 
-    return response()->json(['message' => 'The event has been submitted successfully and is being reviewed.'], 201);
+    return response()->json(['message' =>__('eventRequest.The event has been submitted successfully and is being reviewed.')], 201);
     
 }
 
@@ -60,11 +60,11 @@ public function adminResponse(Request $request,$id): JsonResponse
     $eventRequest = EventRequest::find($id);
 
     if (!$eventRequest) {
-        return response()->json(['error' => 'request not found'], 404);
+        return response()->json(['error' =>__('eventRequest.request not found')], 404);
     }
 
     if ($eventRequest->status !== 'pending') {
-        return response()->json(['message' => 'This request has been answered previously.'], 409);
+        return response()->json(['message' =>__('eventRequest.This request has been answered previously.')], 409);
     }
 
     $eventRequest->status = $request->status;
@@ -79,11 +79,11 @@ public function adminResponse(Request $request,$id): JsonResponse
          $event->companies()->attach($eventRequest->company_id);
 
          
-         return response()->json(['message' => 'request accepted.']);
+         return response()->json(['message' =>__('eventRequest.request accepted.')]);
     }
     if ($request->status === 'rejected'){
 
-        return response()->json(['message'=>'request rejected']);
+        return response()->json(['message'=>__('eventRequest.request rejected')]);
     }
     
 }
@@ -99,16 +99,16 @@ public function index(): JsonResponse//هاد للادمن
         $eventRequest = EventRequest::findOrFail($id);
 
         if(!$eventRequest) {
-            return response()->json(['message'=>'الطلب غير موجود.'], 404);
+            return response()->json(['message'=>__('eventRequest.request not found')], 404);
         }
 
         if($eventRequest->status === 'pending'){
-            return response()->json(['message'=>'لا يمكنك حذف طلب لم يتم الرد عليه.'], 403);
+            return response()->json(['message'=>__('eventRequest.You cannot delete a request that has not been answered')], 403);
         }
 
         $eventRequest->delete();
 
-        return response()->json(['message'=>'تم حذف الطلب بنجاح.'], 200);
+        return response()->json(['message'=>__('eventRequest.Request deleted successfully.')], 200);
     }
 
 }
