@@ -26,9 +26,10 @@ Route::middleware('lang')->group(function () {
         route::post('login', [UserController::class, 'login']);
         route::post('requestPasswordReset', [UserController::class, 'requestPasswordReset']);
         route::post('resetPassword', [UserController::class, 'resetPassword']);
+       
+Route::middleware('auth:sanctum')->group(function () {
         Route::post('send-verification-code', [VerificationController::class, 'send'])->middleware(VerifyCodeRateLimit::class);
         Route::post('verify-verification-code', [VerificationController::class, 'verify']);
-Route::middleware('auth:sanctum')->group(function () {
 Route::middleware('verified')->group(function () {
 
         route::apiResource('profiles', profileController::class);
