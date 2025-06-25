@@ -5,6 +5,7 @@ namespace App\Services;
 use Stripe\Account;
 use Stripe\AccountLink;
 use Stripe\PaymentIntent;
+use Stripe\SetupIntent;
 use Stripe\Stripe;
 
 class StripeServices
@@ -13,7 +14,7 @@ class StripeServices
      * @throws \Exception
      */
     public function __construct(){
-        $secret_key = env('STRIPE_SECRET_KEY');
+        $secret_key = env('STRIPE_SECRET');
         if (empty($secret_key)) {
             throw new \Exception("Stripe Secret Key not set");
         }
@@ -30,8 +31,8 @@ class StripeServices
                'country' => $country,
                'email' => $email,
                'capabilities'=>[
-                   'card_payments' =>  true,
-                   'transfers' =>  true,
+                   'card_payments' => ['requested' => true],
+                   'transfers' =>  ['requested' => true],
                ]
            ]);
            return $stripeAccount;
@@ -95,4 +96,18 @@ class StripeServices
             throw new \Exception("Failed to retrieve account: " . $e->getMessage());
         }
     }
+
+
+    public function createSetupIntent($stripe_account_id): string
+    {
+        try {
+            $intent = SetupIntent::create([], [
+                'stripe_account' => $stripe_account_id,
+            ]);
+            return $intent->client_secret;
+        } catch (\Exception $e) {
+            throw new \Exception("Failed to create SetupIntent: " . $e->getMessage());
+        }
+    }
+
 }

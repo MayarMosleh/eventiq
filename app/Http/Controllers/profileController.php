@@ -46,15 +46,15 @@ class profileController extends Controller
             $profile = Auth::user()->profile;
 
             if (!$profile) {
-                return response()->json(['error' => 'Profile not found'], 404);
+                return response()->json(['error' =>__('profile.Profile not found')], 404);
             }
 
             $profile->delete();
             return response()->json(null, 204);
         } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'Model not found'], 404);
+            return response()->json(['error' =>__('profile.Model not found')], 404);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Something went wrong'], 500);
+            return response()->json(['error' =>__('profile.Something went wrong')], 500);
         }
     }
 
@@ -64,7 +64,7 @@ class profileController extends Controller
         $profile = Auth::user()->profile;
 
         if (!$profile) {
-            return response()->json(['error' => 'Profile not found'], 404);
+            return response()->json(['error' =>__('profile.Profile not found')], 404);
         }
 
         $profile->update($request->validated());

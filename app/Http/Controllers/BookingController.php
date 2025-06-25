@@ -25,7 +25,7 @@ class BookingController extends Controller
         $bookingStatus = $user->bookings()->whereNull('status')->exists();
 
         if ($bookingStatus) {
-            return response()->json(['message' => 'Please Confirm the previous reservation first'], 409);
+            return response()->json(['message' =>__('booking.Please Confirm the previous reservation first')], 409);
         }
 
         $validateData = $request->validate([
@@ -43,7 +43,7 @@ class BookingController extends Controller
             'number_of_invites' => $validateData['number_of_invites'],
         ]);
 
-        return response()->json(['message' => 'Booking has been created', 'booking_id' => $booking->id], 201);
+        return response()->json(['message' =>__('booking.Booking has been created'), 'booking_id' => $booking->id], 201);
     }
 
 
@@ -55,7 +55,7 @@ class BookingController extends Controller
         ]);
 
         if (!(is_null(Booking::find($validatedData['booking_id'])->event_id))) {
-            return response()->json(['message' => 'Event already Selected'], 409);
+            return response()->json(['message' =>__('booking.Event already Selected')], 409);
         }
 
         $event = Event::find($request->event_id);
@@ -66,7 +66,7 @@ class BookingController extends Controller
             'event_name' => $event->event_name,
         ]);
 
-        return response()->json(['message' => 'Event selected', 'booking_id' => $booking->id, 'event_id' => $booking->event_id], 201);
+        return response()->json(['message' =>__('booking.Event selected'), 'booking_id' => $booking->id, 'event_id' => $booking->event_id], 201);
     }
 
 
@@ -81,15 +81,14 @@ class BookingController extends Controller
         $booking = Booking::find($validateData['booking_id']);
 
         if (!is_null($booking->company_id)) {
-            return response()->json(['message' => 'Company already selected'], 409);
+            return response()->json(['message' =>__('booking.Company already selected')], 409);
         }
 
         Booking::where('id', $validateData['booking_id'])->update([
             'company_id' => $validateData['company_id'],
             'company_name' => $company->company_name,
         ]);
-
-        return response()->json(['message' => 'Provider selected'], 201);
+        return response()->json(['message' =>__('booking.Provider selected')],201);
     }
 
 
@@ -103,18 +102,18 @@ class BookingController extends Controller
         $booking = Booking::find($validatedData['booking_id']);
 
         if ($booking->venue()->exists()) {
-            return response()->json(['message' => 'Venue already Selected'], 409);
+            return response()->json(['message' =>__('booking.Venue already Selected')], 409);
         }
 
         $checkVenue = $check->checkAvailability($validatedData['venue_id'], $booking->start_time, $booking->end_time, $booking->booking_date);
 
         if (!$checkVenue) {
-            return response()->json(['message' => 'Venue not available'], 409);
+            return response()->json(['message' =>__('booking.Venue not available')], 409);
         }
 
         $creatBookingVenue($booking, $validatedData);
 
-        return response()->json(['message' => 'Venue selected'], 201);
+        return response()->json(['message' =>__('booking.Venue selected')], 201);
     }
 
 
@@ -130,13 +129,13 @@ class BookingController extends Controller
         $booking = Booking::find($validateData['booking_id']);
 
         if ($booking->bookingServices()->where('service_id', $validateData['service_id'])->exists()) {
-            return response()->json(['message' => 'Service already selected'], 409);
+            return response()->json(['message' =>__('booking.Service already selected')], 409);
         }
 
         $checkService = $check->checkAvailability($validateData['service_id'], $booking->start_time, $booking->end_time, $validateData['service_quantity'], $booking->booking_date);
 
         if (!$checkService) {
-            return response()->json(['message' => 'Service not available'], 409);
+            return response()->json(['message' =>__('booking.Service not available')], 409);
         }
 
         $total_price = (new CalculatePriceAndCreateBookingService)($booking, $validateData);
@@ -145,7 +144,7 @@ class BookingController extends Controller
             'total_price' => $newTotalPrice,
         ]);
 
-        return response()->json(['message' => 'Service selected'], 201);
+        return response()->json(['message' =>__('booking.Service selected')], 201);
     }
 
 
@@ -165,7 +164,7 @@ class BookingController extends Controller
 
         $bookingService->delete();
 
-        return response()->json(['message' => 'Deleted successfully'], 200);
+        return response()->json(['message' =>__('booking.Deleted successfully')], 200);
     }
 
 
@@ -192,12 +191,12 @@ class BookingController extends Controller
                 'total_price' => $newTotalPrice,
             ]);
 
-            return response()->json(['message' => 'Quantity Updated'], 200);
+            return response()->json(['message' =>__('booking.Quantity Updated')], 200);
         } elseif ($serviceBooking->service_quantity < $validateData['service_quantity']) {
             $checkService = $check->checkAvailability($validateData['service_id'], $booking->start_time, $booking->end_time, $validateData['service_quantity'], $booking->booking_date, $validateData['service_id']);
 
             if (!$checkService) {
-                return response()->json(['message' => 'Service not available'], 409);
+                return response()->json(['message' =>__('booking.Service not available')], 409);
             }
 
             $lastPrice = $booking->total_price - $serviceBooking->service_price;
@@ -212,10 +211,10 @@ class BookingController extends Controller
                 'total_price' => $newTotalPrice,
             ]);
 
-            return response()->json(['message' => 'Quantity Updated'], 200);
+            return response()->json(['message' =>__('booking.Quantity Updated')], 200);
         }
 
-        return response()->json(['message' => 'Quantity is already the same, no changes applied'], 200);
+        return response()->json(['message' =>__('booking.Quantity is already the same, no changes applied')], 200);
     }
 
 
@@ -232,10 +231,10 @@ class BookingController extends Controller
                 ]);
             }
 
-            return response()->json(['message' => 'Booking are waiting'], 201);
+            return response()->json(['message' =>__('booking.Booking is waiting')], 201);
         }
 
-        return response()->json(['message' => 'Booking is Waiting'], 409);
+        return response()->json(['message' =>__('booking.Booking is Waiting')], 409);
     }
 
 
@@ -254,7 +253,7 @@ class BookingController extends Controller
 
         $venue->delete();
 
-        return response()->json(['message' => 'Venue Deleted'], 200);
+        return response()->json(['message' =>__('booking.Venue Deleted')], 200);
     }
 
 
@@ -264,7 +263,7 @@ class BookingController extends Controller
            'booking_id' => 'required|exists:bookings,id',
        ]);
        Booking::findOrFail($validatedData['booking_id'])->delete();
-       return response()->json(['message' => 'Booking Deleted'], 200);
+       return response()->json(['message' =>__('booking.Booking Deleted')], 200);
     }
 
 }

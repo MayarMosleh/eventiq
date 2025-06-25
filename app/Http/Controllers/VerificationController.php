@@ -23,7 +23,7 @@ class VerificationController extends Controller
 
         $this->verifier->sendCode($user->email);
 
-        return response()->json(['message' => 'Verification code sent!'], 200);
+        return response()->json(['message' =>__('verify.Verification code sent!')], 200);
     }
 
     public function verify(Request $request): JsonResponse
@@ -37,9 +37,9 @@ class VerificationController extends Controller
                 $user->email_verified_at = now();
                 $user->save();
             }
-            return response()->json(['message' => 'Verified successfully!'], 200);
+            return response()->json(['message' =>__('verify.Verified successfully!')], 200);
         }
 
-        return response()->json(['message' => 'Invalid or expired code.'], 422);
+        return response()->json(['message' =>__('verify.Invalid or expired code.')], 422);
     }
 }

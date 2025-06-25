@@ -20,48 +20,42 @@ class UserController extends Controller
         $user = User::create($request->validated());
         $token = $user->createToken('auth_token')->plainTextToken;
         sendWelcome::dispatch($user);
-        return response()->json(['message' => 'this account has been created', 'user' => $user, 'token' => $token], 201);
+        return response()->json(['message'=> __('auth.register_success'),'user'=>$user,'token'=>$token],201);
     }
-
 
     public function login(Request $request)
     {
-        $request->validate(['email' => 'required|email', 'password' => 'required']);
-        if (!Auth::attempt($request->only('email', 'password')))
-            return response()->json(['message' => 'email or password is invalid'], 401);
+        $request->validate(['email'=>'required|email','password'=>'required']);
+      if(!Auth::attempt($request->only('email','password')))
+      return response()->json(['message'=>__('auth.invalid')],401);
 
         $user = Auth::user();
         if ($user->tokens()->count() > 0) {
-            return response()->json(['message' => 'User already logged in'], 403);
+            return response()->json(['message' =>__('auth.already_loggedin')], 403);
         }
 
-        $user = User::where('email', $request->email)->firstOrFail();
-        $token = $user->createToken('auth_token')->plainTextToken;
-        return response()->json(['message' => 'login successfully', 'user' => $user, 'token' => $token], 201);
+      $user=User::where('email',$request->email)->firstOrFail();
+      $token=$user->createToken('auth_token')->plainTextToken;
+      return response()->json(['message'=> __('auth.login_success'),'user'=>$user,'token'=>$token],201);
     }
-
 
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'logout successfully'], 200);
+        return response()->json(['message'=> __('auth.logout_success')],200);
     }
 
-
-    public function index()
+      public function index()
     {
-        $user = User::all();
-        return response()->json($user, 200);
+        $user=User::all();
+        return response()->json($user,200);
     }
-
 
     public function show($id)
     {
-        $user = User::find($id);
-        return response()->json($user, 200);
+        $user=User::find($id);
+        return response()->json($user,200);
     }
-
-
     public function requestPasswordReset(Request $request, VerificationService $resetPasswordService): JsonResponse
     {
         $request->validate([
@@ -71,12 +65,12 @@ class UserController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (! $user) {
-            return response()->json(['message' => 'Email not found.'], 404);
+            return response()->json(['message' => __('auth.Email not found.')], 404);
         }
 
         $resetPasswordService->sendCode($request->email);
 
-        return response()->json(['message' => 'Verification code sent to your email.']);
+        return response()->json(['message' =>__('auth.send verify code')]);
     }
 
 
@@ -89,16 +83,30 @@ class UserController extends Controller
         ]);
 
         if (! $resetPasswordService->verifyCode($request->email, $request->code)) {
-            return response()->json(['message' => 'Invalid or expired verification code.'], 422);
+            return response()->json(['message' =>__('auth.wrong code')], 422);
         }
 
         $user = User::where('email', $request->email)->first();
 
         if (! $user) {
-            return response()->json(['message' => 'User not found.'], 404);
+            return response()->json(['message' =>__('auth.User not found')], 404);
         }
         $user->password = Hash::make($request->password);
         $user->save();
-        return response()->json(['message' => 'Password has been reset successfully.']);
+        return response()->json(['message' =>__('auth.reset done')]);
     }
+
+    public function deleteAccount(Request $request): JsonResponse
+    {
+        try {
+            $user = Auth::user();
+            $user->delete();
+            return response()->json(['message' =>'account deleted']);
+        }
+        catch (\Exception $e) {
+            return response()->json(['message' =>$e->getMessage()]);
+        }
+
+    }
+
 }

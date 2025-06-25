@@ -4,6 +4,7 @@ use App\Http\Middleware\CheckIfAdmin;
 use App\Http\Middleware\CheckStripeAccount;
 use App\Http\Middleware\checkUserRole;
 use App\Http\Middleware\EnsureEmailIsVerified;
+use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\VerifyCodeRateLimit;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -24,8 +25,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'verified'     => EnsureEmailIsVerified::class,
             'limit'        => VerifyCodeRateLimit::class,
             'CheckAdmin'   => CheckIfAdmin::class,
-            'CheckStripeAccount'=>CheckStripeAccount::class,
-        ]);})
+            'lang'         =>SetLocale::class,
+            'CheckStripeAccount' =>CheckStripeAccount::class]);
+        })
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();

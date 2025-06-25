@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\DeviceTokenController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventRequestController;
 use App\Http\Controllers\profileController;
@@ -20,74 +21,73 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
+Route::middleware('lang')->group(function () {
+    // register functionality
+    route::post('register', [UserController::class, 'register']);
+    route::post('login', [UserController::class, 'login']);
+    route::post('requestPasswordReset', [UserController::class, 'requestPasswordReset']);
+    route::post('resetPassword', [UserController::class, 'resetPassword']);
 
-route::post('register', [UserController::class, 'register']);
-route::post('login', [UserController::class, 'login']);
-route::post('requestPasswordReset', [UserController::class, 'requestPasswordReset']);
-route::post('resetPassword', [UserController::class, 'resetPassword']);
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('send-verification-code', [VerificationController::class, 'send'])->middleware(VerifyCodeRateLimit::class);
+        Route::post('verify-verification-code', [VerificationController::class, 'verify']);
 
-Route::middleware('auth:sanctum')->group(function () {
+        Route::middleware('verified')->group(function () {
 
-    route::post('logout', [UserController::class, 'logout']);
+            // profile routes
+            route::apiResource('profiles', profileController::class);
+            route::post('logout', [UserController::class, 'logout']);
+            route::delete('deleteAccount', [UserController::class, 'deleteAccount']);
 
-    Route::middleware('verified')->group(function () {
+            // create booking routes
+            route::post('createBooking', [BookingController::class, 'createBooking']);
+            route::post('selectEvent', [BookingController::class, 'selectEvent']);
+            route::post('selectProvider', [BookingController::class, 'selectProvider']);
+            route::post('selectVenue', [BookingController::class, 'selectVenue']);
+            route::post('selectService', [BookingController::class, 'selectService']);
+            route::post('confirmBooking', [BookingController::class, 'confirmBooking']);
 
-        route::apiResource('profiles', profileController::class);
+            // update booking
+            route::delete('deleteServiceBooking', [BookingController::class, 'deleteServiceBooking']);
+            route::patch('updateQuantityService', [BookingController::class, 'updateQuantityService']);
+            route::delete('cancelBooking', [BookingController::class, 'cancelBooking']);
+
+            route::delete('deleteVenue', [BookingController::class, 'deleteVenue']);
+            Route::get('/companies', [CompanyController::class, 'index']);
+            Route::get('/venues/{venue}', [VenueController::class, 'show']);
+
+            // Rating Routes
+            Route::get('/companies/{company}/rating', [CompanyController::class, 'getAverageRating']);
+            Route::post('/ratings', [RatingController::class, 'store']);
+
+            // company routes
+            route::get('showProviders', [CompanyController::class, 'showProviders']);
+            Route::post('/company/search', [CompanyController::class, 'search']);
+            route::get('showEvents', [EventController::class, 'showEvents']);
+            route::get('showServices', [ServiceController::class, 'ShowServices']);
+            route::get('showVenue', [VenueController::class, 'showVenue']);
+
+
+            route::post('createAccountStripe', [StripeConnectController::class, 'connect']);
+            route::post('payment', [StripeConnectController::class, 'pay'])->middleware('CheckStripeAccount');
+            route::get('getAccountStatus', [StripeConnectController::class, 'getAccountStatus']);
+            route::get('getStripeAccountId', [StripeConnectController::class, 'getStripeAccountId']);
+        });
 
         Route::middleware('CheckProvider')->group(function () {
-            route::get('getAllUsers', [UserController::class, 'index']);
-            route::get('getUser/{id}', [UserController::class, 'show']);
-            route::apiResource('company', CompanyController::class);
             Route::post('/event-requests', [EventRequestController::class, 'store']);
-
+            Route::post('/device-token', [DeviceTokenController::class, 'store']);
             Route::apiResource('venues', VenueController::class);
-
+            route::apiResource('company', CompanyController::class);
+            Route::post('/company/add-events', [CompanyController::class, 'addEventToCompany']);
             Route::post('/services', [ServiceController::class, 'store']);
         });
 
-        route::get('showEvents', [EventController::class, 'showEvents']);
-        route::get('showProviders', [CompanyController::class, 'showProviders']);
-        route::get('showServices', [ServiceController::class, 'ShowServices']);
-        route::get('showVenue', [VenueController::class, 'showVenue']);
-        route::post('createBooking', [BookingController::class, 'createBooking']);
-        route::post('selectEvent', [BookingController::class, 'selectEvent']);
-        route::post('selectProvider', [BookingController::class, 'selectProvider']);
-        route::post('selectVenue', [BookingController::class, 'selectVenue']);
-        route::post('selectService', [BookingController::class, 'selectService']);
-        route::post('confirmBooking', [BookingController::class, 'confirmBooking']);
-        route::delete('deleteServiceBooking', [BookingController::class, 'deleteServiceBooking']);
-        route::patch('updateQuantityService', [BookingController::class, 'updateQuantityService']);
-        route::delete('deleteVenue', [BookingController::class, 'deleteVenue']);
-
-
-        route::post('logout', [UserController::class, 'logout']);
-
-        Route::post('/ratings', [RatingController::class, 'store']);
-        route::apiResource('company', CompanyController::class);
-        route::post('logout', [UserController::class, 'logout']);
-
-        route::post('createAccountStripe', [StripeConnectController::class, 'connect']);
-        route::post('payment', [StripeConnectController::class, 'pay'])->middleware('CheckStripeAccount');
-        route::delete('cancelBooking', [BookingController::class, 'cancelBooking']);
-    });
-
-    Route::post('/company/search', [CompanyController::class, 'search']);
-
-    Route::middleware('CheckAdmin')->group(function () {
-        Route::get('/event-requests', [EventRequestController::class, 'index']);
-        Route::post('/event-requests/{id}', [EventRequestController::class, 'adminResponse']);
-
-        Route::post('/company/add-events', [CompanyController::class, 'addEventToCompany']);
-
-    });
-
-    Route::post('send-verification-code', [VerificationController::class, 'send'])->middleware(VerifyCodeRateLimit::class);
-    Route::post('verify-verification-code', [VerificationController::class, 'verify']);
-
-
-    Route::middleware('auth:sanctum')->group(function () {
-        Route::get('/companies', [CompanyController::class, 'index']);
-        Route::get('/venues/{venue}', [VenueController::class, 'show']);
-        Route::get('/companies/{company}/rating', [RatingController::class, 'getCompanyRating']);
+        Route::middleware('CheckAdmin')->group(function () {
+            Route::get('/event-requests', [EventRequestController::class, 'index']);
+            Route::post('/event-requests/{id}', [EventRequestController::class, 'adminResponse']);
+            route::get('getAllUsers', [UserController::class, 'index']);
+            route::get('getUser/{id}', [UserController::class, 'show']);
+        });
     });
 });

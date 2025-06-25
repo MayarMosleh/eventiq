@@ -46,9 +46,20 @@ class User extends Authenticatable
     {
         return $this->hasMany(VerificationCode::class);
     }
+    public function deviceTokens()
+{
+    return $this->hasMany(DeviceToken::class);
+}
+
+public function routeNotificationForFcm()
+{
+    return $this->deviceTokens()->pluck('token')->toArray();
+}
+
 
     public function ratings()
     {
         return $this->hasMany(Rating::class);
     }
+
 }

@@ -1,0 +1,22 @@
+<?php 
+return[
+    'Please Confirm the previous reservation first' => 'يرجى تأكيد الحجز السابق أولاً',
+    'Booking has been created' => 'تم إنشاء الحجز',
+    'Event already Selected' => 'تم اختيار الحدث مسبقاً',
+    'Event selected' => 'تم اختيار الحدث',
+    'Company already selected' => 'تم اختيار الشركة مسبقاً',
+    'Provider selected' => 'تم اختيار المزود',
+    'Venue already Selected' => 'تم اختيار القاعة مسبقاً',
+    'Venue not available' => 'القاعة غير متاحة',
+    'Venue selected' => 'تم اختيار القاعة',
+    'Service already selected' => 'تم اختيار الخدمة مسبقاً',
+    'Service not available' => 'الخدمة غير متاحة',
+    'Service selected' => 'تم اختيار الخدمة',
+    'Deleted successfully' => 'تم الحذف بنجاح',
+    'Quantity Updated' => 'تم تحديث الكمية',
+    'Quantity is already the same, no changes applied' => 'الكمية نفسها بالفعل، لم يتم تطبيق أي تغييرات',
+    'Booking is Waiting' => 'الحجز قيد الانتظار',
+    'Venue Deleted' => 'تم حذف القاعة',
+    'Booking Deleted' => 'تم حذف الحجز',
+    '' => '',
+];

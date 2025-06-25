@@ -42,7 +42,7 @@ class CompanyController extends Controller
         if ($user->role === 'provider') {
 
             if ($user->company) {
-                return response()->json(['message' => 'you already have one'], 409);
+                return response()->json(['message' => __('company.you already have one')], 409);
             }
 
             if ($request->hasFile('company_image')) {
@@ -57,7 +57,7 @@ class CompanyController extends Controller
             return response()->json($company, 201);
         }
 
-        return response()->json(['message' => 'unauthorized'], 403);
+        return response()->json(['message' => __('company.unauthorized')], 403);
     }
 
 
@@ -85,7 +85,7 @@ class CompanyController extends Controller
             $company = Company::findOrFail($id);
 
             if ($company->user_id !== $user->id) {
-                return response()->json(['message' => 'unauthorized'], 403);
+                return response()->json(['message' => __('company.unauthorized')], 403);
             }
 
             $validated = $request->validated();
@@ -94,7 +94,7 @@ class CompanyController extends Controller
             return response()->json($company, 200);
         }
 
-        return response()->json(['message' => 'unauthorized'], 403);
+        return response()->json(['message' => __('company.unauthorized')], 403);
     }
 
 
@@ -104,20 +104,20 @@ class CompanyController extends Controller
 
 
         if ($user->role !== 'provider') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => __('company.unauthorized')], 403);
         }
 
         $company = Company::findOrFail($id);
 
 
         if ($company->user_id !== $user->id) {
-            return response()->json(['message' => 'Forbidden - Not your company'], 403);
+            return response()->json(['message' => __('company.Forbidden')], 403);
         }
 
         $company->delete();
 
 
-        return response()->json(['message' => 'the company has been deleted'], 200);
+        return response()->json(['message' => __('company.company deleted')], 200);
     }
 
 
@@ -128,16 +128,14 @@ class CompanyController extends Controller
         $companies = Company::where('company_name', 'LIKE', "%{$company_name}%")->get();
 
         if ($companies->isEmpty()) {
-            return response()->json(['message' => 'No companies found.'], 404);
+            return response()->json(['message' => ('company.No companies found')], 404);
         }
 
         return response()->json(['companies' => $companies], 200);
     }
 
-    public function getAverageRating($companyId)
+    public function getAverageRating(Company $company)
     {
-        $company = Company::findOrFail($companyId);
-
         $averageRating = $company->ratings()->avg('rating');
 
         return response()->json([
