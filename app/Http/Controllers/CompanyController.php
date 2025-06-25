@@ -145,4 +145,25 @@ class CompanyController extends Controller
             'average_rating' => $averageRating ?? 0,
         ]);
     }
+
+    public function addEventToCompany(Request $request)
+    {
+        $user = Auth::user();
+
+        $company = $user->company;
+
+        if (!$company) {
+            return response()->json(['message' => 'You don\'t have a company.'], 400);
+        }
+
+        $validated = $request->validate([
+            'event_ids' => 'required|array',
+            'event_ids.*' => 'exists:events,id',
+        ]);
+
+
+        $company->events()->syncWithoutDetaching($validated['event_ids']);
+
+        return response()->json(['message' => 'Events added to company successfully.'], 200);
+    }
 }

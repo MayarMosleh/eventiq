@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Event extends Model
 {
     protected $guarded = ['id'];
+
+
     public function companies()
     {
         return $this->belongsToMany(Company::class, 'company_events')->withTimestamps();
@@ -18,7 +20,5 @@ class Event extends Model
     {
         return $this->hasMany(CompanyEvent::class);
     }
-
-
 
 }

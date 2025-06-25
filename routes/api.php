@@ -41,6 +41,8 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/event-requests', [EventRequestController::class, 'store']);
 
             Route::apiResource('venues', VenueController::class);
+
+            Route::post('/services', [ServiceController::class, 'store']);
         });
 
         route::get('showEvents', [EventController::class, 'showEvents']);
@@ -74,6 +76,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('CheckAdmin')->group(function () {
         Route::get('/event-requests', [EventRequestController::class, 'index']);
         Route::post('/event-requests/{id}', [EventRequestController::class, 'adminResponse']);
+
+        Route::post('/company/add-events', [CompanyController::class, 'addEventToCompany']);
+
     });
 
     Route::post('send-verification-code', [VerificationController::class, 'send'])->middleware(VerifyCodeRateLimit::class);
