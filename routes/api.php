@@ -26,12 +26,11 @@ Route::middleware('lang')->group(function () {
         route::post('login', [UserController::class, 'login']);
         route::post('requestPasswordReset', [UserController::class, 'requestPasswordReset']);
         route::post('resetPassword', [UserController::class, 'resetPassword']);
-       
+
 Route::middleware('auth:sanctum')->group(function () {
         Route::post('send-verification-code', [VerificationController::class, 'send'])->middleware(VerifyCodeRateLimit::class);
         Route::post('verify-verification-code', [VerificationController::class, 'verify']);
 Route::middleware('verified')->group(function () {
-
         route::apiResource('profiles', profileController::class);
         route::get('showEvents', [EventController::class, 'showEvents']);
         route::get('showProviders', [CompanyController::class, 'showProviders']);
@@ -45,7 +44,7 @@ Route::middleware('verified')->group(function () {
         route::post('confirmBooking', [BookingController::class, 'confirmBooking']);
         route::delete('deleteServiceBooking', [BookingController::class, 'deleteServiceBooking']);
         route::patch('updateQuantityService', [BookingController::class, 'updateQuantityService']);
-        route::delete('deleteVenue', [BookingController::class, 'deleteVenue']);        
+        route::delete('deleteVenue', [BookingController::class, 'deleteVenue']);
         Route::get('/companies', [CompanyController::class, 'index']);
         Route::get('/venues/{venue}', [VenueController::class, 'show']);
         Route::get('/companies/{company}/rating', [RatingController::class, 'getCompanyRating']);
@@ -55,6 +54,9 @@ Route::middleware('verified')->group(function () {
         route::post('createAccountStripe', [StripeConnectController::class, 'connect']);
         route::post('payment', [StripeConnectController::class, 'pay'])->middleware('CheckStripeAccount');
         route::delete('cancelBooking', [BookingController::class, 'cancelBooking']);
+        route::get('getAccountStatus', [StripeConnectController::class, 'getAccountStatus']);
+        route::get('getStripeAccountId', [StripeConnectController::class, 'getStripeAccountId']);
+        route::delete('deleteAccount', [UserController::class, 'deleteAccount']);
     });
     Route::middleware('CheckProvider')->group(function () {
          Route::post('/event-requests', [EventRequestController::class, 'store']);
@@ -70,3 +72,4 @@ Route::middleware('verified')->group(function () {
     });
 });
 });
+

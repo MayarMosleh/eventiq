@@ -95,4 +95,18 @@ class UserController extends Controller
         $user->save();
         return response()->json(['message' =>__('auth.reset done')]);
     }
+
+    public function deleteAccount(Request $request): JsonResponse
+    {
+        try {
+            $user = Auth::user();
+            $user->delete();
+            return response()->json(['message' =>'account deleted']);
+        }
+        catch (\Exception $e) {
+            return response()->json(['message' =>$e->getMessage()]);
+        }
+
+    }
+
 }

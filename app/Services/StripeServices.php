@@ -13,7 +13,7 @@ class StripeServices
      * @throws \Exception
      */
     public function __construct(){
-        $secret_key = env('STRIPE_SECRET_KEY');
+        $secret_key = env('STRIPE_SECRET');
         if (empty($secret_key)) {
             throw new \Exception("Stripe Secret Key not set");
         }
@@ -30,8 +30,8 @@ class StripeServices
                'country' => $country,
                'email' => $email,
                'capabilities'=>[
-                   'card_payments' =>  true,
-                   'transfers' =>  true,
+                   'card_payments' => ['requested' => true],
+                   'transfers' =>  ['requested' => true],
                ]
            ]);
            return $stripeAccount;

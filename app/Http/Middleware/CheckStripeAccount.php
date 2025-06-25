@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Booking;
 use App\Models\Company;
 use App\Services\StripeServices;
 use Closure;
@@ -20,7 +21,8 @@ class CheckStripeAccount
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $company = Company::findOrFail($request->company_id);
+        $booking = Booking::find($request->booking_id);
+        $company = Company::findOrFail($booking->company_id);
 
         $stripeService = app(StripeServices::class);
 
