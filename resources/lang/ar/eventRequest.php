@@ -9,4 +9,5 @@ return [
     'request accepted.' => 'تم قبول الطلب',
     'You cannot delete a request that has not been answered' => 'لا يمكنك حذف طلب لم يتم الرد عليه',
     'Request deleted successfully.' => 'تم حذف الطلب بنجاح.',
+    'Invalid status provided.'=>'الحالة المقدمة غير صحيحة.'
 ];

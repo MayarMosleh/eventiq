@@ -31,18 +31,18 @@ class ServiceController extends Controller
         $company = $user->company;
 
         if (!$company) {
-            return response()->json(['message' => 'You don\'t have a Company'], 400);
+            return response()->json(['message' =>__('service.You don\'t have a Company')], 400);
         }
 
 
         $companyEvent = $company->companyEvents()->find($request->company_events_id);
 
         if (!$companyEvent) {
-            return response()->json(['message' => 'Not your Company'], 403);
+            return response()->json(['message' =>__('service.Not your Company')], 403);
         }
 
         $service = Service::create($request->validated());
 
-        return response()->json(['message' => 'You Added the Service Successfully', 'service' => $service], 201);
+        return response()->json(['message' =>__('service.You Added the Service Successfully'), 'service' => $service], 201);
     }
 }

@@ -10,5 +10,6 @@ return [
     'send verify code'=>'Verification code sent to your email.',
     'wrong code'=>'Invalid or expired verification code.',
     'User not found'=>'this user does not exist',
-    'reset done'=>'Password has been reset successfully'
+    'reset done'=>'Password has been reset successfully',
+    'account deleted'=>'account deleted'
 ];

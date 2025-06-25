@@ -75,9 +75,9 @@ class StripeConnectController extends Controller
         $user = Auth::user();
         $status = $this->stripeService->getAccountStatus($user->stripe_account_id);
         if ($status)
-        return response()->json(['status' => 'account is enabled']);
+        return response()->json(['status' =>__('stripe.account is enabled')]);
         else
-            return response()->json(['status' => 'account is disabled']);
+            return response()->json(['status' =>__('stripe.account is disabled')]);
     }
 
     /**

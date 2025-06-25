@@ -86,6 +86,7 @@ Route::middleware('lang')->group(function () {
         Route::middleware('CheckAdmin')->group(function () {
             Route::get('/event-requests', [EventRequestController::class, 'index']);
             Route::post('/event-requests/{id}', [EventRequestController::class, 'adminResponse']);
+            Route::delete('/event-requests/{id}', [EventRequestController::class, 'destroyAnsweredRequest']);
             route::get('getAllUsers', [UserController::class, 'index']);
             route::get('getUser/{id}', [UserController::class, 'show']);
         });

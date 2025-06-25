@@ -128,7 +128,7 @@ class CompanyController extends Controller
         $companies = Company::where('company_name', 'LIKE', "%{$company_name}%")->get();
 
         if ($companies->isEmpty()) {
-            return response()->json(['message' => ('company.No companies found')], 404);
+            return response()->json(['message' =>__('company.No companies found')], 404);
         }
 
         return response()->json(['companies' => $companies], 200);
@@ -151,7 +151,7 @@ class CompanyController extends Controller
         $company = $user->company;
 
         if (!$company) {
-            return response()->json(['message' => 'You don\'t have a company.'], 400);
+            return response()->json(['message' =>__('company.No companies found')], 400);
         }
 
         $validated = $request->validate([
@@ -162,6 +162,6 @@ class CompanyController extends Controller
 
         $company->events()->syncWithoutDetaching($validated['event_ids']);
 
-        return response()->json(['message' => 'Events added to company successfully.'], 200);
+        return response()->json(['message' =>__('company.Events added to company successfully.')], 200);
     }
 }
