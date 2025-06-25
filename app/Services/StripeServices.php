@@ -5,6 +5,7 @@ namespace App\Services;
 use Stripe\Account;
 use Stripe\AccountLink;
 use Stripe\PaymentIntent;
+use Stripe\SetupIntent;
 use Stripe\Stripe;
 
 class StripeServices
@@ -95,4 +96,18 @@ class StripeServices
             throw new \Exception("Failed to retrieve account: " . $e->getMessage());
         }
     }
+
+
+    public function createSetupIntent($stripe_account_id): string
+    {
+        try {
+            $intent = SetupIntent::create([], [
+                'stripe_account' => $stripe_account_id,
+            ]);
+            return $intent->client_secret;
+        } catch (\Exception $e) {
+            throw new \Exception("Failed to create SetupIntent: " . $e->getMessage());
+        }
+    }
+
 }

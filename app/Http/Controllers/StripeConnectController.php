@@ -80,15 +80,25 @@ class StripeConnectController extends Controller
             return response()->json(['status' => 'account is disabled']);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getStripeAccountId(Request $request): JsonResponse
     {
         $validatedData = $request->validate([
             'booking_id' => 'required|exists:bookings,id',
         ]);
-        $booking = Booking::findOrFail($validatedData['booking_id']);
-        $company = Company::findOrFail($booking->company_id);
-        $stripe_account_id = $company->user->stripe_account_id;
-        return response()->json(['stripe_account_id' => $stripe_account_id]);
+        try {
+            $booking = Booking::findOrFail($validatedData['booking_id']);
+            $company = Company::findOrFail($booking->company_id);
+            $stripe_account_id = $company->user->stripe_account_id;
+            $client_secret = $this->stripeService->createSetupIntent($stripe_account_id);
+            return response()->json(['stripe_account_id' => $stripe_account_id
+                , 'client_secret' => $client_secret]);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()]);
+        }
     }
 
 }
