@@ -81,6 +81,10 @@ Route::middleware('lang')->group(function () {
             route::apiResource('company', CompanyController::class);
             Route::post('/company/add-events', [CompanyController::class, 'addEventToCompany']);
             Route::post('/services', [ServiceController::class, 'store']);
+            Route::post('servicesAddImage', [ServiceController::class, 'addImage']);
+            Route::get('servicesGetImage',[ServiceController::class, 'getImages']);
+            Route::post('venuesAddImage', [VenueController::class, 'addImage']);
+            Route::get('venueGetImages',[VenueController::class, 'getImages']);
         });
 
         Route::middleware('CheckAdmin')->group(function () {
@@ -89,6 +93,9 @@ Route::middleware('lang')->group(function () {
             Route::delete('/event-requests/{id}', [EventRequestController::class, 'destroyAnsweredRequest']);
             route::get('getAllUsers', [UserController::class, 'index']);
             route::get('getUser/{id}', [UserController::class, 'show']);
+            route::post('addEventAdmin',[EventController::class, 'addEventAdmin']);
+            route::delete('deleteEventAdmin',[EventController::class, 'deleteEventAdmin']);
+            route::post('addImageEvent',[EventController::class, 'addImageEvent']);
         });
     });
 });

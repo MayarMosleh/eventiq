@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('event_name');
             $table->text('description');
+            $table->string('image_url')->nullable();
             $table->timestamps();
         });
     }

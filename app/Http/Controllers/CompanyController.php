@@ -44,13 +44,12 @@ class CompanyController extends Controller
             if ($user->company) {
                 return response()->json(['message' => __('company.you already have one')], 409);
             }
-
+            $validated = $request->validated();
             if ($request->hasFile('company_image')) {
                 $path = $request->file('company_image')->store('Company Photos', 'public');
                 $validated['company_image'] = $path;
             }
 
-            $validated = $request->validated();
             $validated['user_id'] = $user->id;
 
             $company = Company::create($validated);
@@ -158,7 +157,6 @@ class CompanyController extends Controller
             'event_ids' => 'required|array',
             'event_ids.*' => 'exists:events,id',
         ]);
-
 
         $company->events()->syncWithoutDetaching($validated['event_ids']);
 

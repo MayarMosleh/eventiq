@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreVenueRequest;
 use App\Http\Requests\UpdateVenueRequest;
+use App\Models\ServiceImage;
 use App\Models\venue;
-use Illuminate\Container\Attributes\Auth;
+use App\Models\VenueImage;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -20,11 +22,6 @@ class VenueController extends Controller
 
         if (!$company) {
             return response()->json(['message' =>__('venue.you do not have a company')], 400);
-        }
-
-        if($request->hasFile('venue_image')){
-            $path = $request->file('venue_image')->store('Venue Photos', 'public');
-            $validated['venue_image'] = $path;
         }
 
         $validated = $request->validated();
@@ -102,4 +99,40 @@ class VenueController extends Controller
 
         return response()->json(['message' =>__('venue.the venue has been deleted successfully')], 200);
     }
+
+
+    public function AddImage(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'venue_id' => 'required|exists:venues,id',
+            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $path = $request->file('image')->store('venue_images', 'public');
+
+        $record = VenueImage::create([
+            'venue_id' => $validated['venue_id'],
+            'image_url' => $path,
+        ]);
+
+        return response()->json([
+            'message' => 'Image uploaded successfully',
+            'image' => $path,
+        ]);
+    }
+
+    public function getImages(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'venue_id' => 'required|exists:venues,id',
+        ]);
+
+        $images = VenueImage::where('venue_id', $validated['venue_id'])->get();
+
+        return response()->json([
+            'images' => $images,
+        ], 200);
+    }
+
+
 }
