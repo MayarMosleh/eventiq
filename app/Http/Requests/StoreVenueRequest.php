@@ -11,7 +11,7 @@ class StoreVenueRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -26,7 +26,6 @@ class StoreVenueRequest extends FormRequest
             'address' => 'required|string',
             'capacity' => 'required|integer|min:10',
             'venue_price' => 'required|numeric|min:0',
-            'venue_image'=>'required|image|mimes:png,jpg,jpeg|max:2048'
         ];
     }
 }

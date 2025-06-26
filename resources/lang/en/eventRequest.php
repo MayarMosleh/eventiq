@@ -9,4 +9,5 @@ return [
     'request accepted.'=>'request accepted.',
     'You cannot delete a request that has not been answered'=>'You cannot delete a request that has not been answered',
     'Request deleted successfully.'=>'Request deleted successfully.',
+    'Invalid status provided.'=>'Invalid status provided.'
 ];

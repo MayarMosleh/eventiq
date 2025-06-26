@@ -44,13 +44,12 @@ class CompanyController extends Controller
             if ($user->company) {
                 return response()->json(['message' => __('company.you already have one')], 409);
             }
-
+            $validated = $request->validated();
             if ($request->hasFile('company_image')) {
                 $path = $request->file('company_image')->store('Company Photos', 'public');
                 $validated['company_image'] = $path;
             }
 
-            $validated = $request->validated();
             $validated['user_id'] = $user->id;
 
             $company = Company::create($validated);
@@ -128,7 +127,11 @@ class CompanyController extends Controller
         $companies = Company::where('company_name', 'LIKE', "%{$company_name}%")->get();
 
         if ($companies->isEmpty()) {
+<<<<<<< HEAD
             return response()->json(['message' => __('company.No companies found')], 404);
+=======
+            return response()->json(['message' =>__('company.No companies found')], 404);
+>>>>>>> 46c80378386c592765b9a9ac827fca036d4b835c
         }
 
         return response()->json(['companies' => $companies], 200);
@@ -151,7 +154,7 @@ class CompanyController extends Controller
         $company = $user->company;
 
         if (!$company) {
-            return response()->json(['message' => 'You don\'t have a company.'], 400);
+            return response()->json(['message' =>__('company.No companies found')], 400);
         }
 
         $validated = $request->validate([
@@ -159,9 +162,8 @@ class CompanyController extends Controller
             'event_ids.*' => 'exists:events,id',
         ]);
 
-
         $company->events()->syncWithoutDetaching($validated['event_ids']);
 
-        return response()->json(['message' => 'Events added to company successfully.'], 200);
+        return response()->json(['message' =>__('company.Events added to company successfully.')], 200);
     }
 }

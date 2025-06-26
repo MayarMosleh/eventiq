@@ -5,5 +5,6 @@ return [
     'unauthorized'=>'المستخدم غير مسجّل دخول',
     'Forbidden'=>'ليس لديك صلاحية بالدخول',
     'company deleted'=>'تم حذف الشركة',
-    'No companies found'=>'لم يتم ايجاد اي شركة'
+    'No companies found'=>'لم يتم ايجاد اي شركة',
+    'Events added to company successfully.'=>'تم اضافة الفعاليات بنجاح'
 ];

@@ -85,7 +85,8 @@ public function adminResponse(Request $request,$id): JsonResponse
 
         return response()->json(['message'=>__('eventRequest.request rejected')]);
     }
-    
+    return response()->json(['message' =>__('eventRequest.Invalid status provided.')], 400);
+
 }
 public function index(): JsonResponse//هاد للادمن
 {

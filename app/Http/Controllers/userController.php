@@ -101,7 +101,7 @@ class UserController extends Controller
         try {
             $user = Auth::user();
             $user->delete();
-            return response()->json(['message' =>'account deleted']);
+            return response()->json(['message' =>__('auth.account deleted')]);
         }
         catch (\Exception $e) {
             return response()->json(['message' =>$e->getMessage()]);
