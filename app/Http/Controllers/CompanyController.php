@@ -128,7 +128,7 @@ class CompanyController extends Controller
         $companies = Company::where('company_name', 'LIKE', "%{$company_name}%")->get();
 
         if ($companies->isEmpty()) {
-            return response()->json(['message' => ('company.No companies found')], 404);
+            return response()->json(['message' => __('company.No companies found')], 404);
         }
 
         return response()->json(['companies' => $companies], 200);
