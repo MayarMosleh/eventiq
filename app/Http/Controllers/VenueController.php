@@ -116,7 +116,7 @@ class VenueController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Image uploaded successfully',
+            'message' =>__('service.Image uploaded successfully'),
             'image' => $path,
         ]);
     }

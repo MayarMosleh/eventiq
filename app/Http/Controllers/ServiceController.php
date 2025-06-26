@@ -62,7 +62,7 @@ class ServiceController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Image uploaded successfully',
+            'message' =>__('Image uploaded successfully'),
             'image' => $path,
         ]);
     }
