@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DeviceToken;
 use App\Models\Event;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\EventRequest;
+use App\Models\Notify;
 use App\Models\User;
 use App\Notifications\FcmNotification;
 use App\Services\FirebaseNotificationService;
+use Illuminate\Support\Facades\DB;
 
 class EventRequestController extends Controller
 {
@@ -42,16 +45,45 @@ class EventRequestController extends Controller
         'status' => 'pending',
     ]);
 
-     $admin = User::where('role', 'admin')->first();
+        $admin = User::where('role', 'admin')->first(); 
+
     if ($admin) {
-        $admin->notify(new FirebaseNotificationService( 'New request to add an event', 'provider: ' . $user->name . ' submitted a request to add : ' . $request->event_name ));
-    }
+        $tokens = DeviceToken::where('user_id', $admin->id)
+            ->where('is_active', true)
+            ->pluck('token')
+            ->toArray();
+    if (count($tokens)) {
+    $providerName = $user->name ?? 'Service Provider';
+    $title = 'New Event Request';
+    $body = "$providerName has submitted a request to add a new event to their company.";
+
+    $firebaseService = new FirebaseNotificationService();
+    $firebaseService->sendToTokens($tokens, $title, $body, [
+        'click_action' => 'EVENT_REQUEST_VIEW',
+        'request_type' => 'event',
+        'company_id' => $company->id,
+        'event_name' => $request->event_name
+    ]);
+    Notify::insert([
+        'user_id' => $admin->id,
+        'title' => $title,
+        'body' => $body,
+        'data' => json_encode([
+            'company_id' => $company->id,
+            'event_name' => $request->event_name,
+        ]),
+        'created_at'  => now(),
+        'updated_at'  => now(),
+        'read_at'     => null,
+    ]);
+}
 
     return response()->json(['message' =>__('eventRequest.The event has been submitted successfully and is being reviewed.')], 201);
     
 }
+}
 
-public function adminResponse(Request $request,$id): JsonResponse
+public function adminResponse(Request $request, $id): JsonResponse
 {
     $request->validate([
         'status' => 'required|in:approved,rejected',
@@ -60,35 +92,73 @@ public function adminResponse(Request $request,$id): JsonResponse
     $eventRequest = EventRequest::find($id);
 
     if (!$eventRequest) {
-        return response()->json(['error' =>__('eventRequest.request not found')], 404);
+        return response()->json(['error' => __('eventRequest.request not found')], 404);
     }
 
     if ($eventRequest->status !== 'pending') {
-        return response()->json(['message' =>__('eventRequest.This request has been answered previously.')], 409);
+        return response()->json(['message' => __('eventRequest.This request has been answered previously.')], 409);
     }
 
     $eventRequest->status = $request->status;
     $eventRequest->save();
 
+
+    $provider = $eventRequest->company->user ?? null;
+
+    if (!$provider) {
+
+    } else {
+        $tokens = DeviceToken::where('user_id', $provider->id)
+            ->where('is_active', true)
+            ->pluck('token')
+            ->toArray();
+
+        if (count($tokens)) {
+            $title = 'Event Request Update';
+            $body = $request->status === 'approved'
+                ? "Your request for event '{$eventRequest->event_name}' has been approved."
+                : "Your request for event '{$eventRequest->event_name}' has been rejected.";
+
+            $firebaseService = new FirebaseNotificationService();
+            $firebaseService->sendToTokens($tokens, $title, $body, [
+                'click_action' => 'EVENT_REQUEST_RESPONSE',
+                'request_id' => $eventRequest->id,
+                'status' => $request->status,
+            ]);
+
+            Notify::insert([
+                'user_id' => $provider->id,
+                'title' => $title,
+                'body' => $body,
+                'data' => json_encode([
+                    'event_request_id' => $eventRequest->id,
+                    'status' => $request->status,
+                ]),
+                'created_at' => now(),
+                'updated_at' => now(),
+                'read_at' => null,
+            ]);
+        }
+    }
+
     if ($request->status === 'approved') {
-      
-       $event =Event::create([
+        $event = Event::create([
             'event_name' => $eventRequest->event_name,
             'description' => $eventRequest->description,
         ]);
-         $event->companies()->attach($eventRequest->company_id);
+        $event->companies()->attach($eventRequest->company_id);
 
-         
-         return response()->json(['message' =>__('eventRequest.request accepted.')]);
+        return response()->json(['message' => __('eventRequest.request accepted.')]);
     }
-    if ($request->status === 'rejected'){
 
-        return response()->json(['message'=>__('eventRequest.request rejected')]);
+    if ($request->status === 'rejected') {
+        return response()->json(['message' => __('eventRequest.request rejected')]);
     }
-    return response()->json(['message' =>__('eventRequest.Invalid status provided.')], 400);
 
+    return response()->json(['message' => __('eventRequest.Invalid status provided.')], 400);
 }
-public function index(): JsonResponse//هاد للادمن
+
+public function index(): JsonResponse
 {
        $requests =EventRequest::latest()->take(5)->get();
         return response()->json($requests);

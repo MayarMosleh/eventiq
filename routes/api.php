@@ -5,6 +5,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DeviceTokenController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventRequestController;
+use App\Http\Controllers\NotifyController;
 use App\Http\Controllers\profileController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\ServiceController;
@@ -72,6 +73,11 @@ Route::middleware('lang')->group(function () {
             route::post('payment', [StripeConnectController::class, 'pay'])->middleware('CheckStripeAccount');
             route::get('getAccountStatus', [StripeConnectController::class, 'getAccountStatus']);
             route::get('getStripeAccountId', [StripeConnectController::class, 'getStripeAccountId']);
+
+            //notifications
+            Route::get('/notifications', [NotifyController::class, 'index']);
+            Route::delete('/notifications/{id}', [NotifyController::class, 'destroy']);
+
         });
 
         Route::middleware('CheckProvider')->group(function () {
