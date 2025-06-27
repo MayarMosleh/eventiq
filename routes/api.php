@@ -85,6 +85,8 @@ Route::middleware('lang')->group(function () {
             Route::get('servicesGetImage',[ServiceController::class, 'getImages']);
             Route::post('venuesAddImage', [VenueController::class, 'addImage']);
             Route::get('venueGetImages',[VenueController::class, 'getImages']);
+
+            Route::apiResource('services', ServiceController::class);
         });
 
         Route::middleware('CheckAdmin')->group(function () {
