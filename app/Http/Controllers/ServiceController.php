@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreServiceRequest;
+use App\Http\Requests\UpdateServiceRequest;
 use App\Models\CompanyEvent;
 use App\Models\Service;
 use App\Models\ServiceImage;
@@ -18,7 +19,7 @@ class ServiceController extends Controller
             'company_event_id' => ['required', 'integer', 'exists:company_events,id'],
         ]);
 
-        $services = Service::where('company_events_id', $validatedData['company_event_id'])->get();
+        $services = Service::where('company_event_id', $validatedData['company_event_id'])->get();
 
         return response()->json($services, 200);
     }
@@ -27,25 +28,64 @@ class ServiceController extends Controller
 
     public function store(StoreServiceRequest $request)
     {
-        $user = Auth::user();
+        $data = $request->validated();
 
-        $company = $user->company;
 
-        if (!$company) {
-            return response()->json(['message' =>__('service.You don\'t have a Company')], 400);
+        $exists = Service::where('company_event_id', $data['company_event_id'])
+            ->where('service_name', $data['service_name'])
+            ->where('service_description', $data['service_description'])
+            ->exists();
+
+        if ($exists) {
+            return response()->json([
+                'message' => 'This service already exists.'
+            ], 409);
         }
 
+        $service = Service::create($data);
 
-        $companyEvent = $company->companyEvents()->find($request->company_events_id);
-
-        if (!$companyEvent) {
-            return response()->json(['message' =>__('service.Not your Company')], 403);
-        }
-
-        $service = Service::create($request->validated());
-
-        return response()->json(['message' =>__('service.You Added the Service Successfully'), 'service' => $service], 201);
+        return response()->json([
+            'message' => 'Service created successfully.',
+            'service' => $service,
+        ], 201);
     }
+
+    public function update(UpdateServiceRequest $request, $id)
+    {
+        $user = Auth::user();
+        $service = Service::find($id);
+
+        if(!$service){
+            return response()->json(['message' => 'this service doesn\'t exist.']);
+        }
+
+
+        if ($service->companyEvent->company->user_id !== $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $duplicate = Service::where('company_event_id', $service->company_event_id)
+            ->where('service_name', $request->service_name)
+            ->where('service_description', $request->service_description)
+            ->where('id', '!=', $service->id)
+            ->exists();
+
+        if ($duplicate) {
+            return response()->json(['message' => 'this service already exists.'], 409);
+        }
+
+        if (!$service->isDirty()) {
+            return response()->json(['message' => 'No changes detected.'], 200);
+        }
+
+        $service->update($request->validated());
+
+        return response()->json([
+            'message' => 'updated successfully.',
+            'service' => $service
+        ], 200);
+    }
+
 
     public function addImage(Request $request): JsonResponse
     {
@@ -56,7 +96,7 @@ class ServiceController extends Controller
 
         $path = $request->file('image')->store('service_images', 'public');
 
-         ServiceImage::create([
+        ServiceImage::create([
             'service_id' => $validated['service_id'],
             'image_url' => $path,
         ]);
@@ -80,5 +120,31 @@ class ServiceController extends Controller
         ], 200);
     }
 
+    public function destroy($id)
+    {
+        $user = Auth::user();
+
+        $service = Service::findOrFail($id);
+
+        $companyEvent = $service->companyEvent;
+
+        if (!$companyEvent || !$companyEvent->company) {
+            return response()->json([
+                'message' => 'Invalid service or data not linked correctly.'
+            ], 400);
+        }
+
+        if ($companyEvent->company->user_id !== $user->id) {
+            return response()->json([
+                'message' => 'Unauthorized'
+            ], 403);
+        }
+
+        $service->delete();
+
+        return response()->json([
+            'message' => 'Service deleted successfully.'
+        ], 200);
+    }
 
 }
