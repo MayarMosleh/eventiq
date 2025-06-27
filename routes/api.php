@@ -32,6 +32,8 @@ Route::middleware('lang')->group(function () {
         Route::post('send-verification-code', [VerificationController::class, 'send'])->middleware(VerifyCodeRateLimit::class);
         Route::post('verify-verification-code', [VerificationController::class, 'verify']);
 
+        Route::get('/companies/{company}/events', [CompanyController::class, 'indexCompanyEvents']);
+
         Route::middleware('verified')->group(function () {
 
             // profile routes
@@ -63,9 +65,13 @@ Route::middleware('lang')->group(function () {
             // company routes
             route::get('showProviders', [CompanyController::class, 'showProviders']);
             Route::post('/company/search', [CompanyController::class, 'search']);
-            route::get('showEvents', [EventController::class, 'showEvents']);
             route::get('showServices', [ServiceController::class, 'ShowServices']);
             route::get('showVenue', [VenueController::class, 'showVenue']);
+
+
+            // events Routes
+
+            route::get('showEvents', [EventController::class, 'showEvents']);
 
 
             route::post('createAccountStripe', [StripeConnectController::class, 'connect']);

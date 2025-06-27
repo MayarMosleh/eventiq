@@ -175,4 +175,19 @@ class CompanyController extends Controller
 
         return response()->json(['message' => 'Events added to company successfully.'], 200);
     }
+
+    public function indexCompanyEvents($companyId)
+    {
+        $company = Company::with('events')->find($companyId);
+
+        if (!$company) {
+            return response()->json(['message' => 'Company not found.'], 404);
+        }
+
+        return response()->json([
+            'company_id' => $company->id,
+            'company_name' => $company->company_name,
+            'events' => $company->events
+        ]);
+    }
 }
