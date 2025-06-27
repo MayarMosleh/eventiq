@@ -38,14 +38,14 @@ class ServiceController extends Controller
 
         if ($exists) {
             return response()->json([
-                'message' => 'This service already exists.'
+                'message' =>__('service.This service already exists.')
             ], 409);
         }
 
         $service = Service::create($data);
 
         return response()->json([
-            'message' => 'Service created successfully.',
+            'message' =>__('service.Service created successfully.'),
             'service' => $service,
         ], 201);
     }
@@ -56,12 +56,12 @@ class ServiceController extends Controller
         $service = Service::find($id);
 
         if(!$service){
-            return response()->json(['message' => 'this service doesn\'t exist.']);
+            return response()->json(['message' =>__('service.this service doesn\'t exist.')]);
         }
 
 
         if ($service->companyEvent->company->user_id !== $user->id) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' =>__('service.Unauthorized')], 403);
         }
 
         $duplicate = Service::where('company_event_id', $service->company_event_id)
@@ -71,17 +71,17 @@ class ServiceController extends Controller
             ->exists();
 
         if ($duplicate) {
-            return response()->json(['message' => 'this service already exists.'], 409);
+            return response()->json(['message' =>__('service.this service already exists.')], 409);
         }
 
         if (!$service->isDirty()) {
-            return response()->json(['message' => 'No changes detected.'], 200);
+            return response()->json(['message' =>__('service.No changes detected.')], 200);
         }
 
         $service->update($request->validated());
 
         return response()->json([
-            'message' => 'updated successfully.',
+            'message' =>__('service.updated successfully.'),
             'service' => $service
         ], 200);
     }
@@ -102,7 +102,7 @@ class ServiceController extends Controller
         ]);
 
         return response()->json([
-            'message' =>__('Image uploaded successfully'),
+            'message' =>__('service.Image uploaded successfully'),
             'image' => $path,
         ]);
     }
@@ -115,9 +115,7 @@ class ServiceController extends Controller
 
         $images = ServiceImage::where('service_id', $validated['service_id'])->get();
 
-        return response()->json([
-            'images' => $images,
-        ], 200);
+        return response()->json([ 'images' => $images, ], 200);
     }
 
     public function destroy($id)
@@ -129,22 +127,18 @@ class ServiceController extends Controller
         $companyEvent = $service->companyEvent;
 
         if (!$companyEvent || !$companyEvent->company) {
-            return response()->json([
-                'message' => 'Invalid service or data not linked correctly.'
+            return response()->json(['message' =>__('service.Invalid service or data not linked correctly.')
             ], 400);
         }
 
         if ($companyEvent->company->user_id !== $user->id) {
-            return response()->json([
-                'message' => 'Unauthorized'
-            ], 403);
+            return response()->json(['message' =>__('service.Unauthorized')], 403);
         }
 
         $service->delete();
 
         return response()->json([
-            'message' => 'Service deleted successfully.'
-        ], 200);
+            'message' =>__('service.Service deleted successfully.')], 200);
     }
 
 }

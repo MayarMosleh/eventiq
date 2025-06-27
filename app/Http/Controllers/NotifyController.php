@@ -26,9 +26,9 @@ public function destroy($id)
         ->delete();
 
     if ($deleted) {
-        return response()->json(['message' => 'Notification deleted successfully.']);
+        return response()->json(['message' =>__('notif.Notification deleted successfully.')]);
     }
 
-    return response()->json(['message' => 'Notification not found or unauthorized.'], 404);
+    return response()->json(['message' =>__('notif.Notification not found or unauthorized.')], 404);
 }
 }

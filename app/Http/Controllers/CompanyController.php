@@ -150,7 +150,7 @@ class CompanyController extends Controller
         $company = $user->company;
 
         if (!$company) {
-            return response()->json(['message' => 'You don\'t have a company.'], 400);
+            return response()->json(['message' =>__('company.No companies found')], 400);
         }
 
         $validated = $request->validate([
@@ -166,13 +166,13 @@ class CompanyController extends Controller
 
         if (!empty($duplicates)) {
             return response()->json([
-                'message' => 'Some events are already added to your company.',
+                'message' =>__('company.Some events are already added to your company.'),
                 'duplicate_event_ids' => array_values($duplicates)
             ], 409);
         }
 
         $company->events()->attach($incomingEventIds);
 
-        return response()->json(['message' => 'Events added to company successfully.'], 200);
+        return response()->json(['message' =>__('company.Events added to company successfully.')], 200);
     }
 }
