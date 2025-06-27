@@ -42,14 +42,15 @@ class CompanyController extends Controller
         if ($user->role === 'provider') {
 
             if ($user->company) {
-                return response()->json(['message' => __('company.you already have one')], 409);
+                return response()->json(['message' => __('company.you already have a company.')], 409);
             }
-            $validated = $request->validated();
+
             if ($request->hasFile('company_image')) {
                 $path = $request->file('company_image')->store('Company Photos', 'public');
                 $validated['company_image'] = $path;
             }
 
+            $validated = $request->validated();
             $validated['user_id'] = $user->id;
 
             $company = Company::create($validated);
@@ -127,7 +128,7 @@ class CompanyController extends Controller
         $companies = Company::where('company_name', 'LIKE', "%{$company_name}%")->get();
 
         if ($companies->isEmpty()) {
-            return response()->json(['message' =>__('company.No companies found')], 404);
+            return response()->json(['message' => __('company.No companies found')], 404);
         }
 
         return response()->json(['companies' => $companies], 200);
@@ -146,7 +147,6 @@ class CompanyController extends Controller
     public function addEventToCompany(Request $request)
     {
         $user = Auth::user();
-
         $company = $user->company;
 
         if (!$company) {
@@ -158,8 +158,36 @@ class CompanyController extends Controller
             'event_ids.*' => 'exists:events,id',
         ]);
 
-        $company->events()->syncWithoutDetaching($validated['event_ids']);
+        $existingEventIds = $company->events()->pluck('events.id')->toArray();
+        $incomingEventIds = $validated['event_ids'];
+
+        // نشوف إذا في فعاليات مكررة
+        $duplicates = array_intersect($existingEventIds, $incomingEventIds);
+
+        if (!empty($duplicates)) {
+            return response()->json([
+                'message' =>__('company.Some events are already added to your company.'),
+                'duplicate_event_ids' => array_values($duplicates)
+            ], 409);
+        }
+
+        $company->events()->attach($incomingEventIds);
 
         return response()->json(['message' =>__('company.Events added to company successfully.')], 200);
+    }
+
+    public function indexCompanyEvents($companyId)
+    {
+        $company = Company::with('events')->find($companyId);
+
+        if (!$company) {
+            return response()->json(['message' => 'Company not found.'], 404);
+        }
+
+        return response()->json([
+            'company_id' => $company->id,
+            'company_name' => $company->company_name,
+            'events' => $company->events
+        ]);
     }
 }

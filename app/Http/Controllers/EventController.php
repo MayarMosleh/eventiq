@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-
+use App\Models\Company;
 use App\Models\Event;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -14,7 +14,7 @@ class EventController extends Controller
 
     public function showEvents(): JsonResponse
     {
-        $events = Event::select('id', 'event_name', 'description','image_url')->get();
+        $events = Event::select('id', 'event_name', 'description', 'image_url')->get();
         return response()->json($events, 200);
     }
 
@@ -25,7 +25,7 @@ class EventController extends Controller
             'description' => 'required',
         ]);
         Event::create($validatedData);
-        return response()->json(['massage'=>'Event created'], 200);
+        return response()->json(['massage' => __('event.Event created')], 200);
     }
 
     public function deleteEventAdmin(Request $request): JsonResponse
@@ -40,7 +40,7 @@ class EventController extends Controller
             Storage::disk('public')->delete($event->image);
         }
         $event->delete();
-        return response()->json(['message' => 'Event Deleted'], 200);
+        return response()->json(['message' => __('event.Event Deleted')], 200);
     }
 
 
@@ -55,7 +55,8 @@ class EventController extends Controller
         $event = Event::findOrFail($validatedData['event_id']);
         $event->image_url = $path;
         $event->save();
-        return response()->json(['massage'=>'Image uploaded successfully','image_url'=>$event->image_url], 200);
+        return response()->json(['massage' => __('event.Image uploaded successfully'), 'image_url' => $event->image_url], 200);
     }
+
 
 }

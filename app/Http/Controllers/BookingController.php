@@ -7,12 +7,15 @@ use App\Actions\CalculatePriceAndCreateBookingService;
 use App\Models\Booking;
 use App\Models\BookingService;
 use App\Models\Company;
+use App\Models\DeviceToken;
 use App\Models\Event;
+use App\Models\Notify;
 use App\Models\Service;
 use App\Models\venue;
 use App\Rules\ServiceQuantityAvailable;
 use App\Services\BookingServiceCheck;
 use App\Services\BookingVenueCheck;
+use App\Services\FirebaseNotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -219,23 +222,60 @@ class BookingController extends Controller
 
 
     public function confirmBooking(Request $request): JsonResponse
-    {
-        $validatedData = $request->validate([
-            'booking_id' => 'required|exists:bookings,id',
-        ]);
+{
+    $validatedData = $request->validate([
+        'booking_id' => 'required|exists:bookings,id',
+    ]);
 
-        if (is_null(Booking::find($validatedData['booking_id'])->status)) {
-            if (Booking::where('id', $validatedData['booking_id'])->where('user_id', Auth::user()->id)) {
-                Booking::where('id', $validatedData['booking_id'])->update([
-                    'status' => 'waiting',
-                ]);
+    $booking = Booking::find($validatedData['booking_id']);
+
+    if (is_null($booking->status)) {
+        if ($booking->user_id === Auth::id()) {
+            $booking->update(['status' => 'waiting']);
+
+            
+            if ($booking->company_id) {
+                $company = Company::find($booking->company_id);
+                $provider = $company->user;
+
+                if ($provider) {
+                    $tokens = DeviceToken::where('user_id', $provider->id)
+                        ->where('is_active', true)
+                        ->pluck('token')
+                        ->toArray();
+
+                    $title = 'New Booking Confirmed';
+                    $body = Auth::user()->name . ' has confirmed a booking.';
+
+                    if (count($tokens)) {
+                        $firebaseService = new FirebaseNotificationService();
+                        $firebaseService->sendToTokens($tokens, $title, $body, [
+                            'click_action' => 'BOOKING_VIEW',
+                            'booking_id' => $booking->id,
+                        ]);
+                    }
+
+                    
+                    Notify::insert([
+                        'user_id' => $provider->id,
+                        'title' => $title,
+                        'body' => $body,
+                        'data' => json_encode([
+                            'booking_id' => $booking->id,
+                        ]),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                        'read_at' => null,
+                    ]);
+                }
             }
 
-            return response()->json(['message' =>__('booking.Booking is waiting')], 201);
+            return response()->json(['message' => __('booking.Booking is waiting')], 201);
         }
-
-        return response()->json(['message' =>__('booking.Booking is Waiting')], 409);
     }
+
+    return response()->json(['message' => __('booking.Booking is Waiting')], 409);
+}
 
 
     public function deleteVenue(Request $request): JsonResponse
@@ -257,13 +297,57 @@ class BookingController extends Controller
     }
 
 
-    public function cancelBooking(Request $request): JsonResponse
-    {
-       $validatedData = $request->validate([
-           'booking_id' => 'required|exists:bookings,id',
-       ]);
-       Booking::findOrFail($validatedData['booking_id'])->delete();
-       return response()->json(['message' =>__('booking.Booking Deleted')], 200);
+   public function cancelBooking(Request $request): JsonResponse
+{
+    $validatedData = $request->validate([
+        'booking_id' => 'required|exists:bookings,id',
+    ]);
+
+    $booking = Booking::findOrFail($validatedData['booking_id']);
+
+    if ($booking->user_id !== auth()->id()) {
+        return response()->json(['error' => 'Unauthorized'], 403);
     }
+    $company = $booking->company;
+    if ($company) {
+        $provider = $company->user; 
+
+        if ($provider) {
+            $user = auth()->user();
+            $title = 'Booking Cancelled';
+            $body = "{$user->name} has cancelled their booking.";
+
+           
+            $tokens = DeviceToken::where('user_id', $provider->id)
+                ->where('is_active', true)
+                ->pluck('token')
+                ->toArray();
+
+            if (count($tokens)) {
+                $firebaseService = new FirebaseNotificationService();
+                $firebaseService->sendToTokens($tokens, $title, $body, [
+                    'click_action' => 'BOOKING_CANCELLED',
+                    'booking_id' => $booking->id,
+                ]);
+            }
+
+            Notify::insert([
+                'user_id' => $provider->id,
+                'title' => $title,
+                'body' => $body,
+                'data' => json_encode([
+                    'booking_id' => $booking->id,
+                ]),
+                'created_at' => now(),
+                'updated_at' => now(),
+                'read_at' => null,
+            ]);
+        }
+    }
+    $booking->delete();
+
+    return response()->json(['message' => __('booking.Booking Deleted')], 200);
+}
+
 
 }
