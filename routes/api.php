@@ -20,7 +20,6 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-
 Route::middleware('lang')->group(function () {
     // register functionality
     route::post('register', [UserController::class, 'register']);
@@ -66,12 +65,8 @@ Route::middleware('lang')->group(function () {
             route::get('showEvents', [EventController::class, 'showEvents']);
             route::get('showServices', [ServiceController::class, 'ShowServices']);
             route::get('showVenue', [VenueController::class, 'showVenue']);
-
-
-            route::post('createAccountStripe', [StripeConnectController::class, 'connect']);
-            route::post('payment', [StripeConnectController::class, 'pay'])->middleware('CheckStripeAccount');
-            route::get('getAccountStatus', [StripeConnectController::class, 'getAccountStatus']);
-            route::get('getStripeAccountId', [StripeConnectController::class, 'getStripeAccountId']);
+            // Stripe
+            route::post('payment', [StripeConnectController::class, 'payment'])->middleware('CheckStripeAccount');
         });
 
         Route::middleware('CheckProvider')->group(function () {
@@ -85,6 +80,10 @@ Route::middleware('lang')->group(function () {
             Route::get('servicesGetImage',[ServiceController::class, 'getImages']);
             Route::post('venuesAddImage', [VenueController::class, 'addImage']);
             Route::get('venueGetImages',[VenueController::class, 'getImages']);
+            // Stripe
+            route::post('createAccountStripe', [StripeConnectController::class, 'connect']);
+            route::get('getAccountStatus', [StripeConnectController::class, 'getAccountStatus']);
+
         });
 
         Route::middleware('CheckAdmin')->group(function () {

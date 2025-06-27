@@ -1,5 +1,6 @@
 <?php
 namespace App\Http\Controllers;
+use App\Jobs\TransferToProviderJob;
 use App\Models\Booking;
 use App\Models\Company;
 use App\Services\StripeServices;
@@ -40,31 +41,42 @@ class StripeConnectController extends Controller
         return response()->json(['url' => $accountLink->url]);
     }
 
-    public function pay(Request $request){
+    public function payment(Request $request): JsonResponse
+    {
         $validatedData = $request->validate([
             'booking_id' => 'required|exists:bookings,id',
             'payment_method_id' => 'required|string',
         ]);
 
         $booking = Booking::findOrFail($validatedData['booking_id']);
-        $company = Company::findOrFail($booking->company_id);
+        if ($booking->status == 'paid')
+            return response()->json(['message' => 'Booking already paid']);
         try {
-            $paymentIntent = $this->stripeService->payment($company->user->stripe_account_id, $booking->total_price, $validatedData['payment_method_id']);
+            $paymentIntent = $this->stripeService->payment($booking->total_price, $validatedData['payment_method_id']);
             $booking->status = 'paid';
             $booking->save();
+            $company = Company::findOrFail($booking->company_id);
+            $providerStripeAccountId = $company->user->stripe_account_id;
+
+            if ($providerStripeAccountId) {
+                TransferToProviderJob::dispatch(
+                    $providerStripeAccountId,
+                    $booking->total_price,
+                    $booking->id
+                );
+            }
+
             return response()->json([
-                'success' => true,
+                'message' => 'Payment completed successfully.',
                 'payment_intent' => $paymentIntent,
             ]);
-        }
 
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
             ], 400);
         }
-
     }
 
     /**
@@ -80,25 +92,7 @@ class StripeConnectController extends Controller
             return response()->json(['status' =>__('stripe.account is disabled')]);
     }
 
-    /**
-     * @throws \Exception
-     */
-    public function getStripeAccountId(Request $request): JsonResponse
-    {
-        $validatedData = $request->validate([
-            'booking_id' => 'required|exists:bookings,id',
-        ]);
-        try {
-            $booking = Booking::findOrFail($validatedData['booking_id']);
-            $company = Company::findOrFail($booking->company_id);
-            $stripe_account_id = $company->user->stripe_account_id;
-            $client_secret = $this->stripeService->createSetupIntent($stripe_account_id);
-            return response()->json(['stripe_account_id' => $stripe_account_id
-                , 'client_secret' => $client_secret]);
 
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()]);
-        }
-    }
+
 
 }
