@@ -25,7 +25,7 @@ class CompanyController extends Controller
             ->join('companies', 'company_events.company_id', '=', 'companies.id')
             ->where('company_events.event_id', $validatedData['event_id'])
             ->select(
-                'company_events.id as company_event_id',
+                'company_events.id as company_events_id',
                 'companies.id as company_id',
                 'companies.company_name',
                 'companies.description',
@@ -45,13 +45,13 @@ class CompanyController extends Controller
                 return response()->json(['message' => __('company.you already have a company.')], 409);
             }
 
+            $validated = $request->validated();
+            $validated['user_id'] = $user->id;
+
             if ($request->hasFile('company_image')) {
                 $path = $request->file('company_image')->store('Company Photos', 'public');
                 $validated['company_image'] = $path;
             }
-
-            $validated = $request->validated();
-            $validated['user_id'] = $user->id;
 
             $company = Company::create($validated);
             return response()->json($company, 201);
@@ -150,7 +150,7 @@ class CompanyController extends Controller
         $company = $user->company;
 
         if (!$company) {
-            return response()->json(['message' =>__('company.No companies found')], 400);
+            return response()->json(['message' => __('company.No companies found')], 400);
         }
 
         $validated = $request->validate([
@@ -166,14 +166,14 @@ class CompanyController extends Controller
 
         if (!empty($duplicates)) {
             return response()->json([
-                'message' =>__('company.Some events are already added to your company.'),
+                'message' => __('company.Some events are already added to your company.'),
                 'duplicate_event_ids' => array_values($duplicates)
             ], 409);
         }
 
         $company->events()->attach($incomingEventIds);
 
-        return response()->json(['message' =>__('company.Events added to company successfully.')], 200);
+        return response()->json(['message' => __('company.Events added to company successfully.')], 200);
     }
 
     public function indexCompanyEvents($companyId)
