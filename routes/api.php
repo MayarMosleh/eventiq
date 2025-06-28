@@ -55,8 +55,9 @@ Route::middleware('lang')->group(function () {
             route::patch('updateQuantityService', [BookingController::class, 'updateQuantityService']);
             route::delete('cancelBooking', [BookingController::class, 'cancelBooking']);
 
-            route::delete('deleteVenue', [BookingController::class, 'deleteVenue']);
             Route::get('/companies', [CompanyController::class, 'index']);
+
+            route::delete('deleteVenue', [BookingController::class, 'deleteVenue']);
             Route::get('/venues/{venue}', [VenueController::class, 'show']);
 
             // Rating Routes
@@ -71,7 +72,6 @@ Route::middleware('lang')->group(function () {
 
 
             // events Routes
-
             route::get('showEvents', [EventController::class, 'showEvents']);
 
 
@@ -89,24 +89,37 @@ Route::middleware('lang')->group(function () {
         Route::middleware('CheckProvider')->group(function () {
             Route::post('/event-requests', [EventRequestController::class, 'store']);
             Route::post('/device-token', [DeviceTokenController::class, 'store']);
-            Route::apiResource('venues', VenueController::class);
             route::apiResource('company', CompanyController::class);
             Route::post('/company/add-events', [CompanyController::class, 'addEventToCompany']);
+
+            // Service Routes
             Route::post('/services', [ServiceController::class, 'store']);
             Route::post('servicesAddImage', [ServiceController::class, 'addImage']);
             Route::get('servicesGetImage',[ServiceController::class, 'getImages']);
+
+            // Venue Routes
+            Route::apiResource('venues', VenueController::class);
             Route::post('venuesAddImage', [VenueController::class, 'addImage']);
             Route::get('venueGetImages',[VenueController::class, 'getImages']);
 
             Route::apiResource('services', ServiceController::class);
+
+            // Update Company Routes
+            Route::patch('/company/{id}/info', [CompanyController::class, 'updateInfo']);
+            Route::post('/company/{id}/image', [CompanyController::class, 'updateImage']);
         });
 
         Route::middleware('CheckAdmin')->group(function () {
+            // Event Request Routes
             Route::get('/event-requests', [EventRequestController::class, 'index']);
             Route::post('/event-requests/{id}', [EventRequestController::class, 'adminResponse']);
             Route::delete('/event-requests/{id}', [EventRequestController::class, 'destroyAnsweredRequest']);
+
+            // User Routes
             route::get('getAllUsers', [UserController::class, 'index']);
             route::get('getUser/{id}', [UserController::class, 'show']);
+
+            // Event Routes
             route::post('addEventAdmin',[EventController::class, 'addEventAdmin']);
             route::delete('deleteEventAdmin',[EventController::class, 'deleteEventAdmin']);
             route::post('addImageEvent',[EventController::class, 'addImageEvent']);
