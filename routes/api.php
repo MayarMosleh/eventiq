@@ -55,8 +55,8 @@ Route::middleware('lang')->group(function () {
             route::patch('updateQuantityService', [BookingController::class, 'updateQuantityService']);
             route::delete('cancelBooking', [BookingController::class, 'cancelBooking']);
 
-            Route::get('/companies', [CompanyController::class, 'index']);
 
+            // Venue Routes
             route::delete('deleteVenue', [BookingController::class, 'deleteVenue']);
             Route::get('/venues/{venue}', [VenueController::class, 'show']);
 
@@ -65,6 +65,7 @@ Route::middleware('lang')->group(function () {
             Route::post('/ratings', [RatingController::class, 'store']);
 
             // company routes
+            Route::get('/companies', [CompanyController::class, 'index']);
             route::get('showProviders', [CompanyController::class, 'showProviders']);
             Route::post('/company/search', [CompanyController::class, 'search']);
             route::get('showServices', [ServiceController::class, 'ShowServices']);
@@ -80,10 +81,13 @@ Route::middleware('lang')->group(function () {
             route::get('getAccountStatus', [StripeConnectController::class, 'getAccountStatus']);
             route::get('getStripeAccountId', [StripeConnectController::class, 'getStripeAccountId']);
 
-            //notifications
+            // notifications
             Route::get('/notifications', [NotifyController::class, 'index']);
             Route::delete('/notifications/{id}', [NotifyController::class, 'destroy']);
 
+            // Profile Update
+            Route::patch('/profile/{id}/info', [profileController::class, 'updateInfo']);
+            Route::post('/profile/{id}/image', [profileController::class, 'updateImage']);
         });
 
         Route::middleware('CheckProvider')->group(function () {
