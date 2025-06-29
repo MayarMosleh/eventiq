@@ -11,6 +11,7 @@ use App\Http\Requests\StoreCompanyRequest;
 use App\Http\Requests\UpdateCompanyRequest;
 use App\Models\Company;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class CompanyController extends Controller
 {
@@ -25,7 +26,7 @@ class CompanyController extends Controller
             ->join('companies', 'company_events.company_id', '=', 'companies.id')
             ->where('company_events.event_id', $validatedData['event_id'])
             ->select(
-                'company_events.id as company_event_id',
+                'company_events.id as company_events_id',
                 'companies.id as company_id',
                 'companies.company_name',
                 'companies.description',
@@ -45,13 +46,13 @@ class CompanyController extends Controller
                 return response()->json(['message' => __('company.you already have a company.')], 409);
             }
 
+            $validated = $request->validated();
+            $validated['user_id'] = $user->id;
+
             if ($request->hasFile('company_image')) {
                 $path = $request->file('company_image')->store('Company Photos', 'public');
                 $validated['company_image'] = $path;
             }
-
-            $validated = $request->validated();
-            $validated['user_id'] = $user->id;
 
             $company = Company::create($validated);
             return response()->json($company, 201);
@@ -77,25 +78,56 @@ class CompanyController extends Controller
         return response()->json($companies, 200);
     }
 
-    public function update(UpdateCompanyRequest $request, $id)
+    public function updateInfo(Request $request, $id)
     {
         $user = Auth::user();
+        $company = Company::findOrFail($id);
 
-        if ($user->role === 'provider') {
-            $company = Company::findOrFail($id);
-
-            if ($company->user_id !== $user->id) {
-                return response()->json(['message' => __('company.unauthorized')], 403);
-            }
-
-            $validated = $request->validated();
-            $company->update($validated);
-
-            return response()->json($company, 200);
+        if ($company->user_id !== $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        return response()->json(['message' => __('company.unauthorized')], 403);
+        $validated = $request->validate([
+            'company_name' => [
+                'required',
+                'string',
+                Rule::unique('companies')->ignore($company->id),
+            ],
+            'description' => 'required|string',
+        ]);
+
+        $company->update($validated);
+
+        return response()->json([
+            'message' => 'Company info updated successfully.',
+            'company' => $company,
+        ]);
     }
+
+    public function updateImage(Request $request, $id)
+    {
+        $user = Auth::user();
+        $company = Company::findOrFail($id);
+
+        if ($company->user_id !== $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'company_image' => 'required|image|mimes:png,jpg,jpeg|max:2048',
+        ]);
+
+        if ($request->hasFile('company_image')) {
+            $path = $request->file('company_image')->store('Company Photos', 'public');
+            $company->update(['company_image' => $path]);
+        }
+
+        return response()->json([
+            'message' => 'Company image updated successfully.',
+            'company' => $company,
+        ]);
+    }
+
 
 
     public function destroy($id)
@@ -150,7 +182,7 @@ class CompanyController extends Controller
         $company = $user->company;
 
         if (!$company) {
-            return response()->json(['message' =>__('company.No companies found')], 400);
+            return response()->json(['message' => __('company.No companies found')], 400);
         }
 
         $validated = $request->validate([
@@ -166,13 +198,28 @@ class CompanyController extends Controller
 
         if (!empty($duplicates)) {
             return response()->json([
-                'message' =>__('company.Some events are already added to your company.'),
+                'message' => __('company.Some events are already added to your company.'),
                 'duplicate_event_ids' => array_values($duplicates)
             ], 409);
         }
 
         $company->events()->attach($incomingEventIds);
 
-        return response()->json(['message' =>__('company.Events added to company successfully.')], 200);
+        return response()->json(['message' => __('company.Events added to company successfully.')], 200);
+    }
+
+    public function indexCompanyEvents($companyId)
+    {
+        $company = Company::with('events')->find($companyId);
+
+        if (!$company) {
+            return response()->json(['message' => 'Company not found.'], 404);
+        }
+
+        return response()->json([
+            'company_id' => $company->id,
+            'company_name' => $company->company_name,
+            'events' => $company->events
+        ]);
     }
 }

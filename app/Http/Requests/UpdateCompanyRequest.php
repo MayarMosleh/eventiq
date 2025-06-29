@@ -24,12 +24,13 @@ class UpdateCompanyRequest extends FormRequest
     {
         return [
             'company_name' => [
+                'sometimes',
                 'required',
                 'string',
                 Rule::unique('companies')->ignore($this->route('company')),
-                'sometimes|required'
             ],
             'description' => 'sometimes|required|string',
+            'company_image' => 'sometimes|image|mimes:png,jpg,jpeg|max:2048',
         ];
     }
 }

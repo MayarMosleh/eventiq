@@ -23,7 +23,7 @@ class StoreProfileRequest extends FormRequest
     {
         return [
             'img' => 'required|image|max:2048|mimes:png,jpg',
-            'phone' => 'integer',
+            'phone' => 'integer|digits:10|unique:profiles,phone',
             'address' => 'string|nullable',
             'birthDate' => 'date'
         ];

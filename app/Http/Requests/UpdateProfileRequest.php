@@ -22,10 +22,10 @@ class UpdateProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'img'=>'required|image|max:2048|mimes:png,jpg',
-            'phone'=>'integer',
-            'address'=>'string|nullable', 
-            'birthDate'=>'date'
+            //  'img'=>'required|image|max:2048|mimes:png,jpg',
+            'phone' => 'integer|digits:10|unique:profiles,phone' . $this->profile()->id,
+            'address' => 'string|nullable',
+            'birthDate' => 'date'
         ];
     }
 }

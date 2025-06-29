@@ -22,7 +22,7 @@ class StoreServiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'company_event_id' => 'required|exists:company_events,id',
+            'company_events_id' => 'required|exists:company_events,id',
             'service_name' => 'required|string|max:255',
             'service_description' => 'required|string',
             'service_price' => 'required|numeric|min:0',

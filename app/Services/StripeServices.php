@@ -4,9 +4,11 @@ namespace App\Services;
 
 use Stripe\Account;
 use Stripe\AccountLink;
+use Stripe\Balance;
 use Stripe\PaymentIntent;
 use Stripe\SetupIntent;
 use Stripe\Stripe;
+use Stripe\Transfer;
 
 class StripeServices
 {
@@ -63,26 +65,46 @@ class StripeServices
     /**
      * @throws \Exception
      */
-    public function payment($stripe_account_id, float $amount,string $paymentMethodId): PaymentIntent
+    public function payment(float $amount, string $paymentMethodId): PaymentIntent
     {
         $amountInCents = (int) round($amount * 100);
-        $adminFee = (int) round($amountInCents * 0.30);
         try {
-            $payment =  PaymentIntent::create([
+            $payment = PaymentIntent::create([
                 'amount' => $amountInCents,
                 'currency' => 'usd',
                 'payment_method' => $paymentMethodId,
-                'confirmation_method' => 'automatic',
                 'confirm' => true,
-                'application_fee_amount' => $adminFee,
-            ], [
-                'stripe_account' => $stripe_account_id,
+                'automatic_payment_methods' => [
+                    'enabled' => true,
+                    'allow_redirects' => 'never',
+                ],
             ]);
-            return $payment;}
-         catch (\Exception $e) {
+
+            return $payment;
+        } catch (\Exception $e) {
             throw new \Exception("Stripe payment failed: " . $e->getMessage());
         }
     }
+
+    public function transferToProvider(string $providerStripeAccountId, float $amount, string $bookingId): Transfer
+    {
+        $eightyPercent = $amount * 0.80;
+        $amountInCents = (int) round($eightyPercent * 100);
+
+        try {
+            $transfer = Transfer::create([
+                'amount' => $amountInCents,
+                'currency' => 'us',
+                'destination' => $providerStripeAccountId,
+                'transfer_group' => 'booking_' . $bookingId,
+            ]);
+            return $transfer;
+        } catch (\Exception $e) {
+            throw new \Exception("Stripe transfer failed: " . $e->getMessage());
+        }
+
+    }
+
 
     /**
      * @throws \Exception
@@ -94,19 +116,6 @@ class StripeServices
             return $status->payouts_enabled;
         } catch (\Exception $e) {
             throw new \Exception("Failed to retrieve account: " . $e->getMessage());
-        }
-    }
-
-
-    public function createSetupIntent($stripe_account_id): string
-    {
-        try {
-            $intent = SetupIntent::create([], [
-                'stripe_account' => $stripe_account_id,
-            ]);
-            return $intent->client_secret;
-        } catch (\Exception $e) {
-            throw new \Exception("Failed to create SetupIntent: " . $e->getMessage());
         }
     }
 
