@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreVenueRequest;
 use App\Http\Requests\UpdateVenueRequest;
+use App\Models\Company;
 use App\Models\ServiceImage;
 use App\Models\venue;
 use App\Models\VenueImage;
@@ -21,7 +22,7 @@ class VenueController extends Controller
         $company = $user->company;
 
         if (!$company) {
-            return response()->json(['message' =>__('venue.you do not have a company')], 400);
+            return response()->json(['message' => __('venue.you do not have a company')], 400);
         }
 
         $validated = $request->validated();
@@ -42,7 +43,7 @@ class VenueController extends Controller
         $venue = venue::findOrFail($id);
 
         if ($venue->company_id !== $user->company_id) {
-            return response()->json(['message' =>__('venue.unauthorized')], 403);
+            return response()->json(['message' => __('venue.unauthorized')], 403);
         }
 
         $validated = $request->validated();
@@ -59,7 +60,7 @@ class VenueController extends Controller
         $company = $user->company;
 
         if (!$company) {
-            return response()->json(['message' =>__('venue.you do not have a company')], 400);
+            return response()->json(['message' => __('venue.you do not have a company')], 400);
         }
 
         $venues = $company->venues;
@@ -68,7 +69,8 @@ class VenueController extends Controller
     }
 
 
-    public function show($id){
+    public function show($id)
+    {
         $venue = venue::findOrFail($id);
 
         return response()->json($venue, 200);
@@ -84,6 +86,16 @@ class VenueController extends Controller
         return response()->json($venue, 200);
     }
 
+    public function getCompanyVenues($companyId)
+    {
+        $company = Company::with('venues')->findOrFail($companyId);
+
+        return response()->json([
+            'company_id' => $company->id,
+            'venues' => $company->venues
+        ]);
+    }
+
 
     public function destroy($id): JsonResponse
     {
@@ -92,12 +104,12 @@ class VenueController extends Controller
         $venue = venue::findOrFail($id);
 
         if ($venue->company_id !== $user->company_id) {
-            return response()->json(['message' =>__('venue.unauthorized')], 403);
+            return response()->json(['message' => __('venue.unauthorized')], 403);
         }
 
         $venue->delete();
 
-        return response()->json(['message' =>__('venue.the venue has been deleted successfully')], 200);
+        return response()->json(['message' => __('venue.the venue has been deleted successfully')], 200);
     }
 
 
@@ -116,7 +128,7 @@ class VenueController extends Controller
         ]);
 
         return response()->json([
-            'message' =>__('service.Image uploaded successfully'),
+            'message' => __('service.Image uploaded successfully'),
             'image' => $path,
         ]);
     }
@@ -133,6 +145,4 @@ class VenueController extends Controller
             'images' => $images,
         ], 200);
     }
-
-
 }

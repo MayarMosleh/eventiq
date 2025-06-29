@@ -35,6 +35,8 @@ Route::middleware('lang')->group(function () {
 
         Route::get('/companies/{company}/events', [CompanyController::class, 'indexCompanyEvents']);
 
+
+
         Route::middleware('verified')->group(function () {
 
             // profile routes
@@ -59,6 +61,7 @@ Route::middleware('lang')->group(function () {
             // Venue Routes
             route::delete('deleteVenue', [BookingController::class, 'deleteVenue']);
             Route::get('/venues/{venue}', [VenueController::class, 'show']);
+            Route::get('/venues/{company}', [VenueController::class, 'getCompanyVenues']);
 
             // Rating Routes
             Route::get('/companies/{company}/rating', [CompanyController::class, 'getAverageRating']);
