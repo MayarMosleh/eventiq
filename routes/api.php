@@ -99,7 +99,7 @@ Route::middleware('lang')->group(function () {
             // Service Routes
             Route::post('/services', [ServiceController::class, 'store']);
             Route::post('servicesAddImage', [ServiceController::class, 'addImage']);
-            Route::get('servicesGetImage',[ServiceController::class, 'getImages']);
+
 
             // Venue Routes
             Route::apiResource('venues', VenueController::class);
@@ -112,7 +112,7 @@ Route::middleware('lang')->group(function () {
             Route::patch('/company/{id}/info', [CompanyController::class, 'updateInfo']);
             Route::post('/company/{id}/image', [CompanyController::class, 'updateImage']);
         });
-
+        Route::get('servicesGetImage',[ServiceController::class, 'getImages']);
         Route::middleware('CheckAdmin')->group(function () {
             // Event Request Routes
             Route::get('/event-requests', [EventRequestController::class, 'index']);
