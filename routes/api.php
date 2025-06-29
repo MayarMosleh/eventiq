@@ -37,12 +37,19 @@ Route::middleware('lang')->group(function () {
 
 
 
+
         Route::middleware('verified')->group(function () {
 
             // profile routes
             route::apiResource('profiles', profileController::class);
             route::post('logout', [UserController::class, 'logout']);
             route::delete('deleteAccount', [UserController::class, 'deleteAccount']);
+
+
+            // Profile Update
+            Route::patch('/profile/{id}', [ProfileController::class, 'updateInfo']);
+            Route::post('/profile/{id}', [profileController::class, 'updateImage']);
+
 
             // create booking routes
             route::post('createBooking', [BookingController::class, 'createBooking']);
@@ -51,6 +58,7 @@ Route::middleware('lang')->group(function () {
             route::post('selectVenue', [BookingController::class, 'selectVenue']);
             route::post('selectService', [BookingController::class, 'selectService']);
             route::post('confirmBooking', [BookingController::class, 'confirmBooking']);
+
 
             // update booking
             route::delete('deleteServiceBooking', [BookingController::class, 'deleteServiceBooking']);
@@ -63,9 +71,11 @@ Route::middleware('lang')->group(function () {
             Route::get('/venues/{venue}', [VenueController::class, 'show']);
             Route::get('/venues/{company}', [VenueController::class, 'getCompanyVenues']);
 
+
             // Rating Routes
             Route::get('/companies/{company}/rating', [CompanyController::class, 'getAverageRating']);
             Route::post('/ratings', [RatingController::class, 'store']);
+
 
             // company routes
             Route::get('/companies', [CompanyController::class, 'index']);
@@ -84,13 +94,10 @@ Route::middleware('lang')->group(function () {
             route::get('getAccountStatus', [StripeConnectController::class, 'getAccountStatus']);
             route::get('getStripeAccountId', [StripeConnectController::class, 'getStripeAccountId']);
 
+
             // notifications
             Route::get('/notifications', [NotifyController::class, 'index']);
             Route::delete('/notifications/{id}', [NotifyController::class, 'destroy']);
-
-            // Profile Update
-            Route::patch('/profile/{id}/info', [profileController::class, 'updateInfo']);
-            Route::post('/profile/{id}/image', [profileController::class, 'updateImage']);
         });
 
         Route::middleware('CheckProvider')->group(function () {

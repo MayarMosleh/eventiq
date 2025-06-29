@@ -60,18 +60,6 @@ class profileController extends Controller
     }
 
 
-    public function update(UpdateProfileRequest $request)
-    {
-        $profile = Auth::user()->profile;
-
-        if (!$profile) {
-            return response()->json(['error' => __('profile.Profile not found')], 404);
-        }
-
-        $profile->update($request->validated());
-        return response()->json($profile, 200);
-    }
-
     public function updateInfo(UpdateProfileRequest $request, $id)
     {
         $user = Auth::user();
@@ -82,7 +70,7 @@ class profileController extends Controller
             return response()->json(['message' => 'unauthorized'], 403);
         }
 
-        $validated = $request->validate();
+        $validated = $request->validated();
 
         $profile->update($validated);
 

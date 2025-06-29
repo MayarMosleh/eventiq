@@ -23,8 +23,7 @@ class UpdateProfileRequest extends FormRequest
     {
         return [
             //  'img'=>'required|image|max:2048|mimes:png,jpg',
-            'phone' => 'integer|digits:10|unique:profiles,phone' . $this->profile()->id,
-            'address' => 'string|nullable',
+            'phone' => 'digits:10|unique:profiles,phone,' . $this->route('id'),
             'birthDate' => 'date'
         ];
     }
