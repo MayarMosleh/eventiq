@@ -2,6 +2,9 @@
 namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\Company;
+use App\Models\DeviceToken;
+use App\Models\Notify;
+use App\Services\FirebaseNotificationService;
 use App\Services\StripeServices;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -52,6 +55,38 @@ class StripeConnectController extends Controller
             $paymentIntent = $this->stripeService->payment($company->user->stripe_account_id, $booking->total_price, $validatedData['payment_method_id']);
             $booking->status = 'paid';
             $booking->save();
+            
+        $provider = $company->user;
+        $user = auth()->user();
+        $title = 'New Payment Received';
+        $body = "{$user->name} has paid for booking ID {$booking->id}.";
+
+
+        $tokens = DeviceToken::where('user_id', $provider->id)
+            ->where('is_active', true)
+            ->pluck('token')
+            ->toArray();
+
+        if (count($tokens)) {
+            $firebaseService = new FirebaseNotificationService();
+            $firebaseService->sendToTokens($tokens, $title, $body, [
+                'click_action' => 'BOOKING_PAYMENT_VIEW',
+                'booking_id' => $booking->id,
+            ]);
+        }
+
+        Notify::insert([
+            'user_id' => $provider->id,
+            'title' => $title,
+            'body' => $body,
+            'data' => json_encode([
+                'booking_id' => $booking->id,
+                'amount' => $booking->total_price,
+            ]),
+            'created_at' => now(),
+            'updated_at' => now(),
+            'read_at' => null,
+        ]);
             return response()->json([
                 'success' => true,
                 'payment_intent' => $paymentIntent,
