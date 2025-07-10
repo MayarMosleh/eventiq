@@ -29,7 +29,7 @@ Route::middleware('lang')->group(function () {
     route::post('requestPasswordReset', [UserController::class, 'requestPasswordReset']);
     route::post('resetPassword', [UserController::class, 'resetPassword']);
 
-    Route::middleware('auth:sanctum')->group(function () {
+   Route::middleware('auth:sanctum')->group(function () {
         Route::post('send-verification-code', [VerificationController::class, 'send'])->middleware(VerifyCodeRateLimit::class);
         Route::post('verify-verification-code', [VerificationController::class, 'verify']);
 
@@ -38,7 +38,7 @@ Route::middleware('lang')->group(function () {
 
 
 
-        Route::middleware('verified')->group(function () {
+       Route::middleware('verified')->group(function () {
 
             // profile routes
             route::apiResource('profiles', profileController::class);
@@ -99,7 +99,6 @@ Route::middleware('lang')->group(function () {
             Route::get('/notifications', [NotifyController::class, 'index']);
             Route::delete('/notifications/{id}', [NotifyController::class, 'destroy']);
         });
-
         Route::middleware('CheckProvider')->group(function () {
             Route::post('/event-requests', [EventRequestController::class, 'store']);
             Route::post('/device-token', [DeviceTokenController::class, 'store']);
