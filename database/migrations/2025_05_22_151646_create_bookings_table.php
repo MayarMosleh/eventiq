@@ -23,6 +23,7 @@ return new class extends Migration
             $table->time('end_time')->nullable();
             $table->date('booking_date')->nullable();
             $table->integer('number_of_invites')->nullable();
+            $table->string('location')->nullable();
             $table->enum('status', ['paid', 'rejected', 'waiting',])->nullable();
             $table->timestamps();
         });

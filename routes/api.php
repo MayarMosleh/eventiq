@@ -32,7 +32,6 @@ Route::middleware('lang')->group(function () {
    Route::middleware('auth:sanctum')->group(function () {
         Route::post('send-verification-code', [VerificationController::class, 'send'])->middleware(VerifyCodeRateLimit::class);
         Route::post('verify-verification-code', [VerificationController::class, 'verify']);
-
         Route::get('/companies/{company}/events', [CompanyController::class, 'indexCompanyEvents']);
 
 
@@ -90,7 +89,7 @@ Route::middleware('lang')->group(function () {
 
 
             route::post('createAccountStripe', [StripeConnectController::class, 'connect']);
-            route::post('payment', [StripeConnectController::class, 'pay'])->middleware('CheckStripeAccount');
+            route::post('payment', [StripeConnectController::class, 'payment'])->middleware('CheckStripeAccount');
             route::get('getAccountStatus', [StripeConnectController::class, 'getAccountStatus']);
             route::get('getStripeAccountId', [StripeConnectController::class, 'getStripeAccountId']);
 
@@ -98,10 +97,10 @@ Route::middleware('lang')->group(function () {
             // notifications
             Route::get('/notifications', [NotifyController::class, 'index']);
             Route::delete('/notifications/{id}', [NotifyController::class, 'destroy']);
+            Route::post('/device-token', [DeviceTokenController::class, 'store']);
         });
         Route::middleware('CheckProvider')->group(function () {
             Route::post('/event-requests', [EventRequestController::class, 'store']);
-            Route::post('/device-token', [DeviceTokenController::class, 'store']);
             route::apiResource('company', CompanyController::class);
             Route::post('/company/add-events', [CompanyController::class, 'addEventToCompany']);
 

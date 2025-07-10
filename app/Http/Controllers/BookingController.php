@@ -12,6 +12,10 @@ use App\Models\Event;
 use App\Models\Notify;
 use App\Models\Service;
 use App\Models\venue;
+use App\Rules\CheckCompanyEvent;
+use App\Rules\CheckCompanyService;
+use App\Rules\CheckCompanyVenue;
+use App\Rules\CheckUserBooking;
 use App\Rules\ServiceQuantityAvailable;
 use App\Services\BookingServiceCheck;
 use App\Services\BookingVenueCheck;
@@ -53,9 +57,10 @@ class BookingController extends Controller
     public function selectEvent(Request $request): JsonResponse
     {
         $validatedData = $request->validate([
-            'booking_id' => 'required|exists:bookings,id',
+            'booking_id' => ['required', 'exists:bookings,id', new CheckUserBooking()],
             'event_id' => 'required|exists:events,id',
         ]);
+
 
         if (!(is_null(Booking::find($validatedData['booking_id'])->event_id))) {
             return response()->json(['message' =>__('booking.Event already Selected')], 409);
@@ -76,8 +81,8 @@ class BookingController extends Controller
     public function selectProvider(Request $request): JsonResponse
     {
         $validateData = $request->validate([
-            'booking_id' => 'required|exists:bookings,id',
-            'company_id' => 'required|exists:companies,id',
+            'booking_id' => ['required','exists:bookings,id',new CheckUserBooking()],
+            'company_id' => ['required','exists:companies,id',new CheckCompanyEvent($request->booking_id)]
         ]);
 
         $company = Company::find($validateData['company_id']);
@@ -98,8 +103,8 @@ class BookingController extends Controller
     public function selectVenue(Request $request, BookingVenueCheck $check, AddPriceAndCreatBookingVenue $creatBookingVenue): JsonResponse
     {
         $validatedData = $request->validate([
-            'booking_id' => 'required|exists:bookings,id',
-            'venue_id' => 'required|exists:venues,id',
+            'booking_id' => ['required','exists:bookings,id',new CheckUserBooking()],
+            'venue_id' => ['required','exists:venues,id',new CheckCompanyVenue($request->booking_id)],
         ]);
 
         $booking = Booking::find($validatedData['booking_id']);
@@ -124,9 +129,9 @@ class BookingController extends Controller
     {
 
         $validateData = $request->validate([
-            'booking_id' => 'required|exists:bookings,id',
-            'service_id' => 'required|exists:services,id',
-            'service_quantity' => ['required', 'integer', 'min:1', new ServiceQuantityAvailable($request->input('service_id'))],
+            'booking_id' => ['required','exists:bookings,id',new CheckUserBooking()],
+            'service_id' => ['required','exists:services,id',new CheckCompanyService($request->booking_id)],
+            'service_quantity' => ['required', 'integer', 'min:1', new ServiceQuantityAvailable($request->service_id)],
         ]);
 
         $booking = Booking::find($validateData['booking_id']);
@@ -154,7 +159,7 @@ class BookingController extends Controller
     public function deleteServiceBooking(Request $request): JsonResponse
     {
         $validateData = $request->validate([
-            'booking_id' => 'required|exists:bookings,id',
+            'booking_id' => ['required','exists:bookings,id',new CheckUserBooking()],
             'service_id' => 'required|exists:booking_services,id',
         ]);
 
@@ -174,15 +179,16 @@ class BookingController extends Controller
     public function updateQuantityService(Request $request, BookingServiceCheck $check): JsonResponse
     {
         $validateData = $request->validate([
-            'booking_id' => 'required|exists:bookings,id',
+            'booking_id' => ['required','exists:bookings,id',new CheckUserBooking()],
             'service_id' => 'required|exists:services,id',
             'service_quantity' => ['required', 'integer', 'min:1', new ServiceQuantityAvailable($request->input('service_id'))],
         ]);
 
         $booking = Booking::find($validateData['booking_id']);
         $service = Service::where('id', $validateData['service_id'])->first();
-        $serviceBooking = BookingService::where('booking_id', $validateData['booking_id'])->where('service_id', $validateData['service_id'])->first();
-
+        $serviceBooking = $booking->bookingServices()
+            ->where('service_id', $validateData['service_id'])
+            ->first();
         if ($serviceBooking->service_quantity > $validateData['service_quantity']) {
             $newServicePrice = $service->service_price * $validateData['service_quantity'];
             $newTotalPrice = ($booking->total_price - $serviceBooking->service_price) + $newServicePrice;
@@ -224,7 +230,7 @@ class BookingController extends Controller
     public function confirmBooking(Request $request): JsonResponse
 {
     $validatedData = $request->validate([
-        'booking_id' => 'required|exists:bookings,id',
+        'booking_id' => ['required','exists:bookings,id',new CheckUserBooking()],
     ]);
 
     $booking = Booking::find($validatedData['booking_id']);
@@ -233,7 +239,7 @@ class BookingController extends Controller
         if ($booking->user_id === Auth::id()) {
             $booking->update(['status' => 'waiting']);
 
-            
+
             if ($booking->company_id) {
                 $company = Company::find($booking->company_id);
                 $provider = $company->user;
@@ -255,7 +261,7 @@ class BookingController extends Controller
                         ]);
                     }
 
-                    
+
                     Notify::insert([
                         'user_id' => $provider->id,
                         'title' => $title,
@@ -281,7 +287,7 @@ class BookingController extends Controller
     public function deleteVenue(Request $request): JsonResponse
     {
         $validatedData = $request->validate([
-            'booking_id' => 'required|exists:bookings,id',
+            'booking_id' => ['required','exists:bookings,id', new CheckUserBooking()],
         ]);
 
         $booking = Booking::findOrFail($validatedData['booking_id']);
@@ -300,24 +306,21 @@ class BookingController extends Controller
    public function cancelBooking(Request $request): JsonResponse
 {
     $validatedData = $request->validate([
-        'booking_id' => 'required|exists:bookings,id',
+        'booking_id' => ['required','exists:bookings,id', new CheckUserBooking(false)],
     ]);
 
     $booking = Booking::findOrFail($validatedData['booking_id']);
 
-    if ($booking->user_id !== auth()->id()) {
-        return response()->json(['error' => 'Unauthorized'], 403);
-    }
     $company = $booking->company;
     if ($company) {
-        $provider = $company->user; 
+        $provider = $company->user;
 
         if ($provider) {
             $user = auth()->user();
             $title = 'Booking Cancelled';
             $body = "{$user->name} has cancelled their booking.";
 
-           
+
             $tokens = DeviceToken::where('user_id', $provider->id)
                 ->where('is_active', true)
                 ->pluck('token')
@@ -349,5 +352,50 @@ class BookingController extends Controller
     return response()->json(['message' => __('booking.Booking Deleted')], 200);
 }
 
+    public function addLocation(Request $request): JsonResponse
+    {
+        $validatedData = $request->validate([
+            'booking_id' => ['required','exists:bookings,id', new CheckUserBooking()],
+            'location'=>['required','string'],
+        ]);
+        $booking = Booking::find($validatedData['booking_id']);
+        if ($booking->venue()->exists()) {
+            return response()->json(['message' =>'you cant do this youu  are added venue'], 409);
+        }
+        $booking->location = $validatedData['location'];
+        $booking->save();
+        return response()->json(['message' => 'booking location Added'], 200);
+    }
+    public function updateLocation(Request $request): JsonResponse
+    {
+        $validatedData = $request->validate([
+            'booking_id' => ['required','exists:bookings,id', new CheckUserBooking()],
+            'location'=>['required','string'],
+        ]);
+        $booking = Booking::find($validatedData['booking_id']);
+        if (!empty($booking->location)) {
+            $booking->update([
+                'location' => $validatedData['location'],
+            ]);
+            return response()->json(['message' => 'Booking location updated'], 200);
+        }
+        return response()->json(['message' => 'Booking location not found or empty'], 404);
+    }
+
+    public function deleteLocation(Request $request): JsonResponse
+    {
+        $validatedData = $request->validate([
+            'booking_id' => ['required','exists:bookings,id', new CheckUserBooking()],
+        ]);
+
+        $booking = Booking::find($validatedData['booking_id']);
+
+        if (!empty($booking->location)) {
+            $booking->update(['location' => null]);
+            return response()->json(['message' => 'Booking location deleted'], 200);
+        }
+
+        return response()->json(['message' => 'Booking location not found'], 200);
+    }
 
 }

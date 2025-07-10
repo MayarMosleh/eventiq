@@ -28,18 +28,25 @@ class VerificationController extends Controller
 
     public function verify(Request $request): JsonResponse
     {
-        $request->validate([
-            'code' => 'required',
-        ]);
-        $user = $request->user();
-        if ($this->verifier->verifyCode($user->email, $request->code)) {
-            if (is_null($user->email_verified_at)) {
-                $user->email_verified_at = now();
-                $user->save();
+        try {
+            $request->validate([
+                'code' => 'required',
+            ]);
+            $user = $request->user();
+            if ($this->verifier->verifyCode($user->email, $request->code)) {
+                if (is_null($user->email_verified_at)) {
+                    $user->email_verified_at = now();
+                    $user->save();
+                }
+                return response()->json(['message' => __('verify.Verified successfully!')], 200);
             }
-            return response()->json(['message' =>__('verify.Verified successfully!')], 200);
+        }
+        catch (\Throwable $e)
+        {
+            Log::error('Verification failed: ' . $e->getMessage());
         }
 
         return response()->json(['message' =>__('verify.Invalid or expired code.')], 422);
     }
+
 }
