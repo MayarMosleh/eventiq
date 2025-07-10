@@ -5,6 +5,7 @@ namespace App\Services;
 use Stripe\Account;
 use Stripe\AccountLink;
 use Stripe\Balance;
+use Stripe\Charge;
 use Stripe\PaymentIntent;
 use Stripe\SetupIntent;
 use Stripe\Stripe;
@@ -65,7 +66,7 @@ class StripeServices
     /**
      * @throws \Exception
      */
-    public function payment(float $amount, string $paymentMethodId): PaymentIntent
+    public function payment(float $amount, string $paymentMethodId,string $booking_id): PaymentIntent
     {
         $amountInCents = (int) round($amount * 100);
         try {
@@ -78,15 +79,15 @@ class StripeServices
                     'enabled' => true,
                     'allow_redirects' => 'never',
                 ],
+                'description' => 'Payment for booking ' . $booking_id,
             ]);
-
             return $payment;
         } catch (\Exception $e) {
             throw new \Exception("Stripe payment failed: " . $e->getMessage());
         }
     }
 
-    public function transferToProvider(string $providerStripeAccountId, float $amount, string $bookingId): Transfer
+    public function transferToProvider(string $providerStripeAccountId, float $amount, string $booking_id): Transfer
     {
         $eightyPercent = $amount * 0.80;
         $amountInCents = (int) round($eightyPercent * 100);
@@ -94,9 +95,9 @@ class StripeServices
         try {
             $transfer = Transfer::create([
                 'amount' => $amountInCents,
-                'currency' => 'us',
+                'currency' => 'usd',
                 'destination' => $providerStripeAccountId,
-                'transfer_group' => 'booking_' . $bookingId,
+                'transfer_group' => 'booking_' . $booking_id,
             ]);
             return $transfer;
         } catch (\Exception $e) {
@@ -118,5 +119,7 @@ class StripeServices
             throw new \Exception("Failed to retrieve account: " . $e->getMessage());
         }
     }
+
+
 
 }

@@ -14,7 +14,8 @@ class TransferToProviderJob implements ShouldQueue
     protected $amount;
     protected $bookingId;
 
-    public $tries = 5;
+    public $tries = 10;
+    public $backoff = 2;
     /**
      * Create a new job instance.
      */

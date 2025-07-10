@@ -20,7 +20,7 @@ class CompanyController extends Controller
     {
         $validatedData = $request->validate([
             'event_id' => ['required', 'exists:events,id'],
-        ]);
+        ]) ;
 
         $providers = DB::table('company_events')
             ->join('companies', 'company_events.company_id', '=', 'companies.id')
