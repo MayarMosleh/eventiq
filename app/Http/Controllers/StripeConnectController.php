@@ -55,12 +55,13 @@ class StripeConnectController extends Controller
         if ($booking->status == 'paid')
             return response()->json(['message' => 'Booking already paid']);
         try {
-            $paymentIntent = $this->stripeService->payment($booking->total_price, $validatedData['payment_method_id']);
-            $booking->status = 'paid';
-            $booking->save();
-<<<<<<< HEAD
-            
-        $provider = $company->user;
+            $paymentIntent = $this->stripeService->payment($booking->total_price, $validatedData['payment_method_id'], $validatedData['booking_id']);
+            $booking->update([
+                'status' => 'paid',
+            ]);
+        // جنى هون كان ناقص ال كومباني منشان اتذكر
+            $company = Company::findOrFail($booking->company_id);
+            $provider = $company->user;
         $user = auth()->user();
         $title = 'New Payment Received';
         $body = "{$user->name} has paid for booking ID {$booking->id}.";
@@ -91,10 +92,8 @@ class StripeConnectController extends Controller
             'updated_at' => now(),
             'read_at' => null,
         ]);
-=======
-            $company = Company::findOrFail($booking->company_id);
             $providerStripeAccountId = $company->user->stripe_account_id;
-
+            if ($paymentIntent->status == 'succeeded') {
             if ($providerStripeAccountId) {
                 TransferToProviderJob::dispatch(
                     $providerStripeAccountId,
@@ -102,8 +101,7 @@ class StripeConnectController extends Controller
                     $booking->id
                 );
             }
-
->>>>>>> 5d8e6d9ad20891795f50aedc03b5ae25bdb010de
+            }
             return response()->json([
                 'message' => 'Payment completed successfully.',
                 'payment_intent' => $paymentIntent,
