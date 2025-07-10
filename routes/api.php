@@ -98,11 +98,11 @@ Route::middleware('lang')->group(function () {
             // notifications
             Route::get('/notifications', [NotifyController::class, 'index']);
             Route::delete('/notifications/{id}', [NotifyController::class, 'destroy']);
+            Route::post('/device-token', [DeviceTokenController::class, 'store']);
         });
 
         Route::middleware('CheckProvider')->group(function () {
             Route::post('/event-requests', [EventRequestController::class, 'store']);
-            Route::post('/device-token', [DeviceTokenController::class, 'store']);
             route::apiResource('company', CompanyController::class);
             Route::post('/company/add-events', [CompanyController::class, 'addEventToCompany']);
 
