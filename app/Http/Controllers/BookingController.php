@@ -262,19 +262,39 @@ class BookingController extends Controller
                     }
 
 
-                    Notify::insert([
-                        'user_id' => $provider->id,
-                        'title' => $title,
-                        'body' => $body,
-                        'data' => json_encode([
-                            'booking_id' => $booking->id,
-                        ]),
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                        'read_at' => null,
-                    ]);
+                    Notify::create([
+                    'user_id' => $provider->id,
+                    'title' => $title,
+                    'body' => $body,
+                 'data' => ['booking_id' => $booking->id ], ]);
+
                 }
             }
+             $user = Auth::user();
+
+            $userTokens = DeviceToken::where('user_id', $user->id)
+                ->where('is_active', true)
+                ->pluck('token')
+                ->toArray();
+
+            $titleToUser = 'Booking Confirmed';
+            $bodyToUser = 'Your booking has been successfully confirmed.';
+
+            if (count($userTokens)) {
+                $firebaseService->sendToTokens($userTokens, $titleToUser, $bodyToUser, [
+                    'click_action' => 'BOOKING_DETAILS',
+                    'booking_id' => $booking->id,
+                ]);
+                
+            }
+
+       Notify::create([
+    'user_id' => $user->id,
+    'title' =>'Booking Confirmed',
+    'body' =>'Your booking has been successfully confirmed.',
+    'data' => [
+        'booking_id' => $booking->id ]]);
+
 
             return response()->json(['message' => __('booking.Booking is waiting')], 201);
         }
@@ -333,20 +353,40 @@ class BookingController extends Controller
                     'booking_id' => $booking->id,
                 ]);
             }
+Notify::create([
+    'user_id' => $provider->id,
+    'title' => $title,
+    'body' =>$body,
+    'data' => ['booking_id' => $booking->id],
+]);
 
-            Notify::insert([
-                'user_id' => $provider->id,
-                'title' => $title,
-                'body' => $body,
-                'data' => json_encode([
-                    'booking_id' => $booking->id,
-                ]),
-                'created_at' => now(),
-                'updated_at' => now(),
-                'read_at' => null,
-            ]);
+
         }
     }
+     $titleToUser = 'Booking Cancelled';
+    $bodyToUser = 'You have successfully cancelled your booking.';
+
+    $userTokens = DeviceToken::where('user_id', $user->id)
+        ->where('is_active', true)
+        ->pluck('token')
+        ->toArray();
+
+    if (count($userTokens)) {
+        $firebaseService->sendToTokens($userTokens, $titleToUser, $bodyToUser, [
+            'click_action' => 'BOOKING_CANCELLED',
+            'booking_id' => $booking->id,
+        ]);
+    }
+   Notify::create([
+    'user_id' => $user->id,
+    'title' => 'Booking Cancelled',
+    'body' => 'You cancelled your booking.',
+    'data' => ['booking_id' => $booking->id],
+]);
+
+
+
+
     $booking->delete();
 
     return response()->json(['message' => __('booking.Booking Deleted')], 200);

@@ -61,5 +61,8 @@ public function routeNotificationForFcm()
     {
         return $this->hasMany(Rating::class);
     }
-
+public function notifies()
+{
+    return $this->hasMany(Notify::class);
+}
 }

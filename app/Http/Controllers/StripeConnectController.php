@@ -79,16 +79,37 @@ class StripeConnectController extends Controller
             ]);
         }
 
-        Notify::insert([
-            'user_id' => $provider->id,
-            'title' => $title,
-            'body' => $body,
-            'data' => json_encode([
+       Notify::create([
+    'user_id' => $provider->id,
+    'title' => $title,
+    'body' => $body,
+    'data' => [
+        'booking_id' => $booking->id,
+        'amount' => $booking->total_price,
+    ],
+    'read_at' => null,
+]);
+
+ $userTokens = DeviceToken::where('user_id', $user->id)
+            ->where('is_active', true)
+            ->pluck('token')
+            ->toArray();
+
+        if (count($userTokens)) {
+            $firebaseService->sendToTokens($userTokens, 'Payment Successful', "You have paid for booking ID {$booking->id}.", [
+                'click_action' => 'BOOKING_PAYMENT_VIEW',
+                'booking_id' => $booking->id,
+            ]);
+        }
+
+         Notify::create([
+    'user_id' => $user->id,
+            'title' => 'Payment Successful',
+            'body' => "You have successfully paid for booking ID {$booking->id}.",
+            'data' => [
                 'booking_id' => $booking->id,
                 'amount' => $booking->total_price,
-            ]),
-            'created_at' => now(),
-            'updated_at' => now(),
+            ],
             'read_at' => null,
         ]);
             $providerStripeAccountId = $company->user->stripe_account_id;

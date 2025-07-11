@@ -64,18 +64,17 @@ class EventRequestController extends Controller
         'company_id' => $company->id,
         'event_name' => $request->event_name
     ]);
-    Notify::insert([
-        'user_id' => $admin->id,
-        'title' => $title,
-        'body' => $body,
-        'data' => json_encode([
-            'company_id' => $company->id,
-            'event_name' => $request->event_name,
-        ]),
-        'created_at'  => now(),
-        'updated_at'  => now(),
-        'read_at'     => null,
-    ]);
+    Notify::create([
+    'user_id' => $admin->id,
+    'title' => $title,
+    'body' => $body,
+    'data' => json_encode([
+        'company_id' => $company->id,
+        'event_name' => $request->event_name,
+    ]),
+    'read_at' => null,
+]);
+
 }
 
     return response()->json(['message' =>__('eventRequest.The event has been submitted successfully and is being reviewed.')], 201);
@@ -126,18 +125,17 @@ public function adminResponse(Request $request, $id): JsonResponse
                 'status' => $request->status,
             ]);
 
-            Notify::insert([
-                'user_id' => $provider->id,
-                'title' => $title,
-                'body' => $body,
-                'data' => json_encode([
-                    'event_request_id' => $eventRequest->id,
-                    'status' => $request->status,
-                ]),
-                'created_at' => now(),
-                'updated_at' => now(),
-                'read_at' => null,
-            ]);
+           Notify::create([
+    'user_id' => $provider->id,
+    'title' => $title,
+    'body' => $body,
+    'data' => json_encode([
+        'event_request_id' => $eventRequest->id,
+        'status' => $request->status,
+    ]),
+    'read_at' => null,
+]);
+
         }
     }
 
