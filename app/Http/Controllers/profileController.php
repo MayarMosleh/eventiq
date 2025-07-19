@@ -19,40 +19,35 @@ class profileController extends Controller
     }
 
 
-    public function show($id)
-{
-    $user = Auth::user();
+    public function show()
+    {
+        $user = Auth::user();
+        $profile = Profile::where('user_id', $user->id)->first();
 
-    $profile = Profile::find($id);
-
-    // التحقق إذا الملف ليس له علاقة بالمستخدم الحالي
-    if ($profile && $user->id !== $profile->user_id) {
-        return response()->json(['message' => 'Unauthorized'], 403);
-    }
-
-    // في حال ما في بروفايل، منرجع بيانات فاضية
-    if (!$profile) {
-        $profile = [
+        $profileData = $profile ? $profile : [
             'id' => null,
-            'user_id' => $user->id,
-            'phone' => null,
-            'birthDate' => null,
-            'img' => null,
             'created_at' => null,
             'updated_at' => null,
+            'user_id' => $user->id,
+            'phone' => null,
+            'img' => null,
+            'birthDate' => null,
         ];
+
+        return response()->json([
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+            ],
+            'profile' => $profileData
+        ]);
     }
 
-    return response()->json([
-        'user' => [
-            'id' => $user->id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'role' => $user->role,
-        ],
-        'profile' => $profile
-    ], 200);
-}
+
+
+
 
 
 
@@ -60,12 +55,22 @@ class profileController extends Controller
     public function store(StoreProfileRequest $request)
     {
         $userId = Auth::user()->id;
+
+        // تشييك إذا اليوزر عندو بروفايل
+        if (Profile::where('user_id', $userId)->exists()) {
+            return response()->json([
+                'message' => 'You already have a profile.'
+            ], 409); // Conflict
+        }
+
         $validated = $request->validated();
         $validated['user_id'] = $userId;
+
         if ($request->hasFile('img')) {
             $path = $request->file('img')->store('my photo', 'public');
             $validated['img'] = $path;
         }
+
         $profile = Profile::create($validated);
         return response()->json($profile, 201);
     }

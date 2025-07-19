@@ -37,15 +37,15 @@ Route::middleware('lang')->group(function () {
 
 
 
-       Route::middleware('verified')->group(function () {
+        Route::middleware('verified')->group(function () {
 
             // profile routes
-            route::apiResource('profiles', profileController::class);
             route::post('logout', [UserController::class, 'logout']);
             route::delete('deleteAccount', [UserController::class, 'deleteAccount']);
 
 
             // Profile Update
+            route::apiResource('profiles', profileController::class);
             Route::patch('/profile/{id}', [ProfileController::class, 'updateInfo']);
             Route::post('/profile/{id}', [profileController::class, 'updateImage']);
 
