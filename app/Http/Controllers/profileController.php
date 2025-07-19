@@ -19,12 +19,42 @@ class profileController extends Controller
     }
 
 
-    public function show()
-    {
-        $user = Auth::user();
-        $profile = Profile::where('user_id', $user->id)->firstOrFail();
-        return response()->json($profile, 200);
+    public function show($id)
+{
+    $user = Auth::user();
+
+    $profile = Profile::find($id);
+
+    // التحقق إذا الملف ليس له علاقة بالمستخدم الحالي
+    if ($profile && $user->id !== $profile->user_id) {
+        return response()->json(['message' => 'Unauthorized'], 403);
     }
+
+    // في حال ما في بروفايل، منرجع بيانات فاضية
+    if (!$profile) {
+        $profile = [
+            'id' => null,
+            'user_id' => $user->id,
+            'phone' => null,
+            'birthDate' => null,
+            'img' => null,
+            'created_at' => null,
+            'updated_at' => null,
+        ];
+    }
+
+    return response()->json([
+        'user' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
+        ],
+        'profile' => $profile
+    ], 200);
+}
+
+
 
 
     public function store(StoreProfileRequest $request)
