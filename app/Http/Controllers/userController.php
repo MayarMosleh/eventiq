@@ -51,11 +51,25 @@ class UserController extends Controller
         return response()->json($user,200);
     }
 
+    public function index_users()
+    {
+        $user = User::where('role', 'user')->get();
+        return response()->json($user, 200);
+    }
+
+    public function index_providers()
+    {
+        $user = User::where('role', 'provider')->get();
+        return response()->json($user, 200);
+    }
+
+
     public function show($id)
     {
         $user=User::find($id);
         return response()->json($user,200);
     }
+
     public function requestPasswordReset(Request $request, VerificationService $resetPasswordService): JsonResponse
     {
         $request->validate([

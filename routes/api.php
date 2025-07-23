@@ -121,7 +121,12 @@ Route::middleware('lang')->group(function () {
             Route::post('/company/{id}/image', [CompanyController::class, 'updateImage']);
         });
         Route::get('servicesGetImage',[ServiceController::class, 'getImages']);
+
         Route::middleware('CheckAdmin')->group(function () {
+            // Get Users
+            Route::get('/get_only_users', [UserController::class, 'index_users']);
+            Route::get('/get_only_providers', [UserController::class, 'index_providers']);
+
             // Event Request Routes
             Route::get('/event-requests', [EventRequestController::class, 'index']);
             Route::post('/event-requests/{id}', [EventRequestController::class, 'adminResponse']);
